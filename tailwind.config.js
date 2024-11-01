@@ -4,6 +4,9 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      backgroundImage: {
+        'newMeetingBg': "url('assets/images/newMeetingWallpaper.png')"
+      },
       colors: {
         pink: "#f76bb0",
         hotpink: {

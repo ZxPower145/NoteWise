@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.zxpower.NoteWise"
     },
     "web": {
       "bundler": "metro",
@@ -28,6 +29,11 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2ad299f3-6b65-4a8e-9a7a-1d3a4d33b18a"
+      }
+    }
   }
 }
