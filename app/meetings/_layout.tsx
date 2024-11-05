@@ -20,8 +20,8 @@ const MeetingsLayout = () => {
           title: 'Transcript Live'
         }}/>
         
-        <Stack.Screen name="view/[id]" options={{
-          headerShown: false
+        <Stack.Screen name="view/[title]" options={{
+          headerShown: true,
         }}/>
       </Stack>
       <StatusBar backgroundColor="black" style="light" />

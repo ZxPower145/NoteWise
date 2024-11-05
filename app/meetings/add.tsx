@@ -2,9 +2,10 @@ import {TouchableOpacity, Text, View, ScrollView} from "react-native"
 import { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
+import { meetingData } from "@/constants/CustomTypes";
 import CustomTextInput from "@/components/CustomTextInput"
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import localStorage from "@/hooks/localStorage";
+import localStorage from "@/hooks/LocalStorage"
 
 const Add = () => {
   const date = new Date()
@@ -12,12 +13,12 @@ const Add = () => {
   const hour = date.getHours()
   const minutes = date.getMinutes().toString()
   
-  const [meetingData, setMeetingData] = useState({
-    id: 1,
+  const [meetingData, setMeetingData] = useState<meetingData>({
+    title: '',
     date: localDate,
     startTime: `${hour}:${minutes.length > 1 ? minutes : '0' + minutes}`,
-    title: '',
     initialDetails: '',
+    transcript: ''
   })
   
   const [placeholder, setPlaceholder] = useState({
@@ -53,18 +54,25 @@ const Add = () => {
     }))
   }
   
-  const submit = () => {
-    if (meetingData.title.trim() === "") {
+  const saveData = async (data: meetingData) => {
+    if (data.title.trim() === "") {
       updatePlaceholderText("The Meeting Title is Required.")
       updatePlaceholderColor("red")
-      return
     } else {
-      router.push({
-        pathname: '/meetings/liveMeeting',
-        params: {
-          title: meetingData.title
-        }
-      });
+      const status = await localStorage.addItem('meetings', data)
+      if (status === 400) {
+        updateTitle("")
+        updatePlaceholderText("Choose another title.")
+        updatePlaceholderColor("red")
+        return
+      } else if (status === 201) {
+        router.push({
+          pathname: '/meetings/liveMeeting',
+          params: {
+            title: meetingData.title
+          }
+        });
+      }
     }
   }
   
@@ -94,8 +102,8 @@ const Add = () => {
             </Text>
             <TouchableOpacity
               className="rounded-3xl p-2 w-[100px] mx-auto"
-              onPress={() => {
-                submit()
+              onPress={async () => {
+                await saveData(meetingData)
               }}>
               <FontAwesome className="mx-auto"
                 name='microphone'

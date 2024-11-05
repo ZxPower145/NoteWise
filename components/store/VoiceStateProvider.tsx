@@ -3,91 +3,66 @@ import { useState, createContext } from 'react';
 export const VoiceStateContext = createContext({})
 
 export const VoiceStateProvider = ({ children }) => {
-  const [voiceToText, setVoiceToText] = useState({
-    recognized: '',
-    pitch: '',
+  const [voiceTranscript, setVoiceTranscript] = useState({
     error: '',
-    started: false,
-    results: [{
-      speaker: '',
-      text: ''
-    }],
-    partialResults: [{
-      speaker: '',
-      text: ''
-    }],
-    end: true
+    results: [],
+    partialResults: [],
   })
   
-  const setRecognized = (value) => {
-    setVoiceToText(prevState => ({
-      ...prevState,
-      recognized: value
-    }))
-  }
-  
-  const setPitch = (value) => {
-    setVoiceToText(prevState => ({
-      ...prevState,
-      pitch: value
-    }))
-  }
-  
   const setError = (value) => {
-    setVoiceToText(prevState => ({
+    setVoiceTranscript(prevState => ({
       ...prevState,
       error: value
     }))
   }
   
-  const setStarted = (value: boolean) => {
-    setVoiceToText(prevState => ({
-      ...prevState,
-      started: value
-    }))
-  }
-  
-  const addResults = (text: string, speaker = '' ) => {
-    setVoiceToText(prevState => ({
+  const addResults = (text: string ) => {
+    if (!text) return
+    setVoiceTranscript(prevState => ({
       ...prevState,
       results: [...prevState.results, {
-        speaker: speaker,
+        id: Date.now(),
         text: text
-      }]
+      } ]
     }))
   }
   
-  const addPartialResults = ( text, speaker?) => {
-    setVoiceToText(prevState => ({
+  const clearResults = () => {
+    setVoiceTranscript(prevState => ({
+      ...prevState,
+      results: []
+    }))
+  }
+  
+  const addPartialResults = ( text ) => {
+    if (!text) return
+    setVoiceTranscript(prevState => ({
       ...prevState,
       partialResults: [...prevState.results, {
-        speaker: speaker ? speaker : '',
+        id: Date.now(),
         text: text
       }]
     }))
   }
   
-  const setEnded = (value) => {
-    setVoiceToText(prevState => ({
+  const clearPartialResults = () => {
+    setVoiceTranscript(prevState => ({
       ...prevState,
-      end: value
+      partialResults: []
     }))
   }
   
   return (
     <VoiceStateContext.Provider
       value={{
-        voiceToText,
-        setRecognized,
-        setPitch,
+        voiceTranscript,
         setError,
-        setStarted,
         addResults,
+        clearResults,
         addPartialResults,
-        setEnded
+        clearPartialResults,
       }}>
       {children}
     </VoiceStateContext.Provider>
   )
-  
 }

@@ -1,9 +1,10 @@
-import {SplashScreen, Tabs} from 'expo-router'
+import { SplashScreen, Tabs } from 'expo-router'
 import { useFonts } from "expo-font"
-import {useEffect} from "react"
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useEffect } from "react"
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { StatusBar } from "expo-status-bar"
 import "@/constants/global.css"
-import {StatusBar} from "expo-status-bar";
+import 'react-native-get-random-values'
 
 SplashScreen.preventAutoHideAsync()
 

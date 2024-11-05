@@ -1,11 +1,30 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
-import MeetingButton from "@/components/MeetingButton"
+import MeetingElement from "@/components/MeetingElement"
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import localStorage from "@/hooks/localStorage"
+import {useCallback, useRef, useState} from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import localStorage from "@/hooks/LocalStorage";
 
 const Index = () => {
+  const [meetings, setMeetings] = useState([])
+  
+  const getMeetings = async () => {
+    const meetingsArr = await localStorage.getItem('meetings')
+    if (meetingsArr) {
+      setMeetings(meetingsArr)
+    } else {
+      setMeetings([])
+    }
+  }
+  
+  useFocusEffect(
+    useCallback(() => {
+      getMeetings()
+    }, [])
+  )
+  
   return (
     <SafeAreaView className="bg-white h-full px-2">
       <View className='flex flex-wrap flex-row justify-between items-center p-2 border-b'>
@@ -18,7 +37,18 @@ const Index = () => {
       </View>
       <ScrollView>
         <View className="w-full justify-start content-center min-h-[85vh]">
-        
+          {
+            meetings.length > 0 && meetings.map((item, index) => (
+              Array.isArray(item) && item.length > 0 ? null : (
+                <MeetingElement
+                  key={index}
+                  startTime={item.startTime}
+                  date={item.date}
+                  title={item.title}
+                />
+              )
+            ))
+          }
         </View>
       </ScrollView>
     </SafeAreaView>

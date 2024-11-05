@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import images from "@/constants/images"
 import CustomButton from "@/components/CustomButton"
-import localStorage from "@/hooks/localStorage"
+import localStorage from "@/hooks/localStorageOld"
 
 export default function App() {
   return (
