@@ -1,11 +1,6 @@
 import MeetingStorage from "@/hooks/storage/components/MeetingStorage";
 import AgentsStorage from "@/hooks/storage/components/AgentsStorage";
 
-interface LocalStorageResponseType {
-  status?: number
-  error?: string
-}
-
 class LocalStorage {
   meetings: MeetingStorage
   agents: AgentsStorage

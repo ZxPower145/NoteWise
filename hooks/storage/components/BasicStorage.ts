@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Utils from "@/hooks/storage/Utils";
+import Utils from "@/hooks/storage/components/Utils";
 import {AgentDataInt, MeetingDataInt} from "@/constants/CustomTypes";
 
 class BasicStorage {
@@ -49,7 +49,7 @@ class BasicStorage {
         })
         if (newArr) {
           this.storageItems = newArr
-          await AsyncStorage.setItem(this.storageKey, this.storageItems)
+          await AsyncStorage.setItem(this.storageKey, JSON.stringify(this.storageItems))
         }
       }
     } catch (error) {
@@ -72,6 +72,11 @@ class BasicStorage {
   
   async get(primaryKey: string) {
     try {
+      if (!primaryKey) {
+        console.error("Primary key is undefined!")
+        return null
+      }
+      
       return this.storageItems.filter(item => {
         return (
           Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) ===
@@ -100,16 +105,9 @@ class BasicStorage {
     }
   }
   
-  async update(primaryKey: string, propertyToUpdate: string, value: any) {
+  async update(index: number, agent: AgentDataInt) {
     try {
-      const index = this.storageItems.findIndex(
-        item => Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) ===
-          Utils.toLowerNoSpaces(primaryKey)
-      )
-      if (index === -1) {
-        return Utils.generateResponse(404, this.notFoundError)
-      }
-      this.storageItems[index] = { ...this.storageItems[index], ...{ property: value }}
+      this.storageItems[index] = agent
       await AsyncStorage.setItem(this.storageKey, JSON.stringify(this.storageItems))
       
       console.log('Updated item:', this.storageItems[index])
@@ -118,6 +116,13 @@ class BasicStorage {
       console.error('Error updating item:', error)
       return Utils.generateResponse(400, 'Internal error')
     }
+  }
+  
+  getIndex(primaryKey: string) {
+    return this.storageItems.findIndex(
+      item => Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) ===
+        Utils.toLowerNoSpaces(primaryKey)
+    )
   }
   
   private async isPrimaryKeyUnique(primaryKey: string) {

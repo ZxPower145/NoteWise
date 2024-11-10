@@ -5,10 +5,21 @@ import {VoiceStateProvider} from "@/components/store/VoiceStateProvider";
 const MeetingsLayout = () => {
   return (
     <VoiceStateProvider>
-      <Stack>
+      <Stack screenOptions={{
+        headerTitleStyle: {
+          fontWeight: 'bold'
+        }
+      }}>
+        
         <Stack.Screen name="index" options={{
           headerShown: false
         }}/>
+        
+        <Stack.Screen name="modals/deleteConfirmation" options={{
+          presentation: "transparentModal",
+          headerShown: false
+        }}/>
+        
         
         <Stack.Screen name="add" options={{
           headerShown: true,
@@ -23,6 +34,7 @@ const MeetingsLayout = () => {
         <Stack.Screen name="view/[title]" options={{
           headerShown: true,
         }}/>
+        
       </Stack>
       <StatusBar backgroundColor="black" style="light" />
     </VoiceStateProvider>

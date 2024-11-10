@@ -18,3 +18,4 @@ nativewind-env.d.ts
 .idea
 /components/ReactNativeVoice.js
 .env
+.gitignore

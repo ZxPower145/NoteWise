@@ -2,10 +2,10 @@ import {TouchableOpacity, Text, View, ScrollView} from "react-native"
 import { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
-import { meetingData } from "@/constants/CustomTypes";
-import CustomTextInput from "@/components/CustomTextInput"
+import { MeetingDataInt } from "@/constants/CustomTypes"
+import CustomTextInput from "@/components/elements/CustomTextInput"
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import localStorage from "@/hooks/LocalStorage"
+import localStorage from "@/hooks/storage/LocalStorage"
 
 const Add = () => {
   const date = new Date()
@@ -13,12 +13,13 @@ const Add = () => {
   const hour = date.getHours()
   const minutes = date.getMinutes().toString()
   
-  const [meetingData, setMeetingData] = useState<meetingData>({
+  const [meetingData, setMeetingData] = useState<MeetingDataInt>({
     title: '',
     date: localDate,
     startTime: `${hour}:${minutes.length > 1 ? minutes : '0' + minutes}`,
     initialDetails: '',
-    transcript: ''
+    transcript: '',
+    agents: []
   })
   
   const [placeholder, setPlaceholder] = useState({
@@ -40,39 +41,21 @@ const Add = () => {
     }))
   }
   
-  const updatePlaceholderText = (newText) => {
-    setPlaceholder((prevData) => ({
-      ...prevData,
-      text: newText
-    }))
-  }
-  
-  const updatePlaceholderColor = (newColor) => {
-    setPlaceholder((prevData) => ({
-      ...prevData,
-      color: newColor
-    }))
-  }
-  
-  const saveData = async (data: meetingData) => {
-    if (data.title.trim() === "") {
-      updatePlaceholderText("The Meeting Title is Required.")
-      updatePlaceholderColor("red")
+  const saveData = async (data: MeetingDataInt) => {
+    let response = await localStorage.meetings.add(data)
+    if (response.status === 400 && response.error) {
+      updateTitle("")
+      setPlaceholder({
+        text: response.error,
+        color: "red"
+      })
     } else {
-      const status = await localStorage.addItem('meetings', data)
-      if (status === 400) {
-        updateTitle("")
-        updatePlaceholderText("Choose another title.")
-        updatePlaceholderColor("red")
-        return
-      } else if (status === 201) {
-        router.push({
-          pathname: '/meetings/liveMeeting',
-          params: {
-            title: meetingData.title
-          }
-        });
-      }
+      router.push({
+        pathname: '/meetings/liveMeeting',
+        params: {
+          title: meetingData.title
+        }
+      })
     }
   }
   

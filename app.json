@@ -20,6 +20,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permissions":[
+        "INTERNET",
+        "RECORD_AUDIO"
+      ],
       "package": "com.zxpower.NoteWise"
     },
     "web": {
@@ -35,6 +39,12 @@
           "android": {
             "kotlinVersion": "1.6.10"
           }
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
         }
       ]
     ],

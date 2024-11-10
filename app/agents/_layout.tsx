@@ -1,9 +1,10 @@
-import { Stack } from "expo-router";
-import {StatusBar} from "expo-status-bar";
+import { Stack } from "expo-router"
+import {StatusBar} from "expo-status-bar"
+import {AgentStateProvider} from "@/components/store/AgentStateProvider";
 
 const AgentsLayout = () => {
   return (
-    <>
+    <AgentStateProvider>
       <Stack>
         <Stack.Screen name="index" options={{
           headerShown: false
@@ -13,12 +14,10 @@ const AgentsLayout = () => {
           title: "Add a new Agent"
         }}/>
         
-        <Stack.Screen name="view/[name]" options={{
-          headerShown: false
-        }}/>
+        <Stack.Screen name="view/[name]" />
       </Stack>
       <StatusBar backgroundColor={'black'} style={'light'} />
-    </>
+    </AgentStateProvider>
   )
 }
 

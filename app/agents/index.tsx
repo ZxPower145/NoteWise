@@ -1,10 +1,39 @@
 import {SafeAreaView} from "react-native-safe-area-context"
 import {ScrollView, View, Text, TouchableOpacity} from "react-native"
-import { router } from "expo-router"
+import {router, useFocusEffect} from "expo-router"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import AgentElement from "@/components/AgentElement";
+import AgentElement from "@/components/elements/AgentElement";
+import {useEffect, useState} from "react";
+import * as React from "react";
+import {AgentDataInt} from "@/constants/CustomTypes";
+import localStorage from "@/hooks/storage/LocalStorage";
 
 const Index = () => {
+  const [agents, setAgents] = useState<AgentDataInt[]>([])
+  
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true
+      
+      const getAllAgents = async () => {
+        try {
+          const all = await localStorage.agents.getAll()
+          if (all && isActive) setAgents(all)
+        } catch (error) {
+          console.error(error)
+        }
+      }
+      
+      getAllAgents()
+      
+      return () => {
+        isActive = false
+      }
+      
+    }, [])
+  )
+  
   return(
     <SafeAreaView className="h-full p-3">
       <View className="mb-3 flex-row justify-between align-center px-1">
@@ -18,7 +47,11 @@ const Index = () => {
         </TouchableOpacity>
       </View>
       <ScrollView className="border-t border-gray-300" contentContainerStyle={{height: '100%', flexGrow: 1}}>
-        <AgentElement name={"Basescu"} system={""} refreshRate={30}/>
+        {
+          agents.map((agent, index) => (
+            <AgentElement key={index} name={agent.name} system={agent.system ? agent.system : ''} refreshRate={agent.refreshRate} />
+          ))
+        }
       </ScrollView>
     </SafeAreaView>
   )

@@ -1,16 +1,23 @@
 
-interface meetingData {
+interface MeetingDataInt {
   title: string
   date: string
   startTime: string
   initialDetails: string
   transcript: string
+  agents: AgentDataInt[]
 }
 
-interface agentInfo {
+interface AgentDataInt {
   name: string
-  system: string
-  refreshRate: number
+  system?: string
+  refreshRate: string
+  transcript?: string
 }
 
-export { meetingData, agentInfo }
+interface LocalStorageResponseType {
+  status?: number
+  error?: string
+}
+
+export { MeetingDataInt, AgentDataInt, LocalStorageResponseType }

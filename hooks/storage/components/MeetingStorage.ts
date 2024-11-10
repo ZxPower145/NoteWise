@@ -1,4 +1,4 @@
-import BasicStorage from "@/hooks/storage/BasicStorage";
+import BasicStorage from "@/hooks/storage/components/BasicStorage";
 
 class MeetingStorage extends BasicStorage{
   constructor() {
