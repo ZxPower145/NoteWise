@@ -13,27 +13,21 @@ export const useAzureSpeech = (
   
   useEffect(() => {
     speechService.setCallbacks({
-      onSessionStarted: (sessionId: string) => {
-        console.log('Session started:', sessionId)
-      },
-      onSessionStopped: (sessionId: string) => {
-        console.log('Session stopped:', sessionId)
-        setIsRecording(false)
-      },
-      onCanceled: (error: TranscriptionError) => {
-        console.log('Session cancelled: ', error.errorDetails)
-        setError(error.errorDetails)
-        setIsRecording(false)
+      onTranscribed: (result: TranscriptionResult) => {
+        console.log("Transcription received:", result.text);
+        setTranscription(prev => prev + '\n' + result.text);
       },
       onError: (error: TranscriptionError) => {
-        console.log('Session error: ', error.errorDetails)
-        setError(error.errorDetails)
+        console.log("Error occurred:", error.errorDetails);
+        setError(error.errorDetails);
       },
-      onTranscribed: (result: TranscriptionResult) => {
-        console.log('Recognized: ', result.text)
-        setTranscription(prev => prev + '\n' + result.text);
-      }
-    })
+      onSessionStarted: (sessionId: string) => {
+        console.log("Session started:", sessionId);
+      },
+      onSessionStopped: (sessionId: string) => {
+        console.log("Session stopped:", sessionId);
+      },
+    });
   }, [speechService])
   
   const startRecording = useCallback(async () => {
