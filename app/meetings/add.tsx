@@ -2,7 +2,7 @@ import {TouchableOpacity, Text, View, ScrollView} from "react-native"
 import { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
-import { MeetingDataInt } from "@/constants/CustomTypes"
+import { MeetingDataType } from "@/constants/CustomTypes"
 import CustomTextInput from "@/components/elements/CustomTextInput"
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import localStorage from "@/hooks/storage/LocalStorage"
@@ -13,7 +13,7 @@ const Add = () => {
   const hour = date.getHours()
   const minutes = date.getMinutes().toString()
   
-  const [meetingData, setMeetingData] = useState<MeetingDataInt>({
+  const [meetingData, setMeetingData] = useState<MeetingDataType>({
     title: '',
     date: localDate,
     startTime: `${hour}:${minutes.length > 1 ? minutes : '0' + minutes}`,
@@ -41,7 +41,7 @@ const Add = () => {
     }))
   }
   
-  const saveData = async (data: MeetingDataInt) => {
+  const saveData = async (data: MeetingDataType) => {
     let response = await localStorage.meetings.add(data)
     if (response.status === 400 && response.error) {
       updateTitle("")

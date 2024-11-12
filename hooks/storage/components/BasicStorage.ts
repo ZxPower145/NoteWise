@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Utils from "@/hooks/storage/components/Utils";
-import {AgentDataInt, MeetingDataInt} from "@/constants/CustomTypes";
+import {AgentDataType, MeetingDataType} from "@/constants/CustomTypes";
 
 class BasicStorage {
   private readonly storageKey
@@ -89,7 +89,7 @@ class BasicStorage {
     }
   }
   
-  async add(item: MeetingDataInt | AgentDataInt) {
+  async add(item: MeetingDataType | AgentDataType) {
     try {
       if (!item[this.primaryKeyPropertyName] || item[this.primaryKeyPropertyName === ""]) {
         return Utils.generateResponse(400, this.noPrimaryKeyError)
@@ -105,7 +105,7 @@ class BasicStorage {
     }
   }
   
-  async update(index: number, agent: AgentDataInt) {
+  async update(index: number, agent: AgentDataType) {
     try {
       this.storageItems[index] = agent
       await AsyncStorage.setItem(this.storageKey, JSON.stringify(this.storageItems))

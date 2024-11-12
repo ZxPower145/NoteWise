@@ -2,12 +2,12 @@ import {router, useLocalSearchParams, useNavigation} from "expo-router"
 import { useState, useEffect } from "react"
 import {ScrollView, Text, TouchableOpacity, View} from "react-native"
 import LocalStorage from "@/hooks/storage/LocalStorage"
-import {MeetingDataInt} from "@/constants/CustomTypes";
+import {MeetingDataType} from "@/constants/CustomTypes";
 import {SafeAreaView} from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const MeetingDetails = () => {
-  const [meeting, setMeeting] = useState<MeetingDataInt>({
+  const [meeting, setMeeting] = useState<MeetingDataType>({
     title: '',
     date: '',
     startTime: '',

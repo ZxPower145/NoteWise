@@ -1,9 +1,9 @@
 import {View, Text, TouchableOpacity} from "react-native"
-import { AgentDataInt } from "@/constants/CustomTypes"
+import { AgentDataType } from "@/constants/CustomTypes"
 import localStorage from "@/hooks/storage/LocalStorage"
 import {router} from "expo-router";
 
-const AgentElement = (agent: AgentDataInt) => {
+const AgentElement = (agent: AgentDataType) => {
   return (
     <View className="flex-row items-center justify-center border-b border-gray-300 px-1 my-1">
       <TouchableOpacity className="m-5" onPress={() => {

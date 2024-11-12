@@ -1,44 +1,34 @@
-import {View, Text, TouchableOpacity, ScrollView, Alert} from "react-native"
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native"
+import {useCallback, useEffect, useRef, useState} from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
-import {useLocalSearchParams} from "expo-router"
-import { KEY, REGION } from "@env"
+import { useLocalSearchParams } from "expo-router"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import useAzureSpeechToText from '@/hooks/useAzureSpeech';
+import { useAzureSpeech } from "@/hooks/speech/useAzureSpeech";
+import { KEY, REGION } from "@env"
 
-const azureConfig = {
-  key: KEY,
-  region: REGION
-}
 
 
 const LiveMeeting = () => {
   const { title } = useLocalSearchParams()
-  const {
-    isRecording,
-    transcript,
-    error,
-    startRecording,
-    stopRecording,
-  } = useAzureSpeechToText(
-    KEY,
-    REGION
-  );
   
+  const {
+    isRecording, transcription, error, startRecording, stopRecording
+  } = useAzureSpeech(KEY, REGION, "en-US")
   
   return (
     <SafeAreaView className="h-full px-2">
       <Text className="text-2xl text-center mb-2">{title}</Text>
       <ScrollView className="border rounded-2xl" contentContainerStyle={{ width: '100%', flexGrow: 1 }}>
-        <Text>{transcript}</Text>
+        <Text>{transcription}</Text>
       </ScrollView>
       <View className="flex flex-row justify-between p-5">
         <TouchableOpacity onPress={() => {
         }}>
           <MaterialIcons name="cancel" size={44} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {
-          isRecording ? stopRecording() : startRecording();
-        }}>
+        <TouchableOpacity onPress={
+          isRecording ? stopRecording : startRecording
+        }>
           <MaterialIcons name={isRecording ? 'pause-circle' : 'not-started'} size={44} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>

@@ -1,11 +1,11 @@
-import {AgentDataInt} from "@/constants/CustomTypes";
+import {AgentDataType} from "@/constants/CustomTypes";
 import {ScrollView, TextInput, TouchableOpacity, View} from "react-native";
 import {router} from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 interface AgentFormDataType {
-  agent: AgentDataInt
+  agent: AgentDataType
   placeholder: object
   updateName: () => void
   updateSystem: () => void

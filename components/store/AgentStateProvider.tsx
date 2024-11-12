@@ -1,10 +1,10 @@
 import { useState, createContext } from "react";
-import {AgentDataInt} from "@/constants/CustomTypes";
+import {AgentDataType} from "@/constants/CustomTypes";
 
 export const AgentStateContext = createContext({})
 
 export const AgentStateProvider = ({ children }) => {
-  const [agent, setAgent] = useState<AgentDataInt>({
+  const [agent, setAgent] = useState<AgentDataType>({
     name: '',
     system: '',
     refreshRate: '',
@@ -43,21 +43,21 @@ export const AgentStateProvider = ({ children }) => {
   }
   
   const updateName = (newName: string) => {
-    setAgent((prevState: AgentDataInt) => ({
+    setAgent((prevState: AgentDataType) => ({
       ...prevState,
       name: newName
     }))
   }
   
   const updateSystem = (newSystem: string) => {
-    setAgent((prevState: AgentDataInt) => ({
+    setAgent((prevState: AgentDataType) => ({
       ...prevState,
       system: newSystem
     }))
   }
   
   const updateRefreshRate = (newRefreshRate: string) => {
-    setAgent((prevState: AgentDataInt) => ({
+    setAgent((prevState: AgentDataType) => ({
       ...prevState,
       refreshRate: newRefreshRate
     }))

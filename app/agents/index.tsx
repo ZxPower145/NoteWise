@@ -5,11 +5,11 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AgentElement from "@/components/elements/AgentElement";
 import {useEffect, useState} from "react";
 import * as React from "react";
-import {AgentDataInt} from "@/constants/CustomTypes";
+import {AgentDataType} from "@/constants/CustomTypes";
 import localStorage from "@/hooks/storage/LocalStorage";
 
 const Index = () => {
-  const [agents, setAgents] = useState<AgentDataInt[]>([])
+  const [agents, setAgents] = useState<AgentDataType[]>([])
   
   
   useFocusEffect(
