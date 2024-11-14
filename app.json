@@ -22,7 +22,9 @@
       },
       "permissions":[
         "INTERNET",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "WRITE_EXTERNAL_FILES",
+        "READ_EXTERNAL_FILES"
       ],
       "package": "com.zxpower.NoteWise"
     },

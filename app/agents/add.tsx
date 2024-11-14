@@ -15,10 +15,17 @@ const Add = () => {
   
   const handleSaveAgent = async () => {
     try {
-      const response = await localStorage.agents.add(agent)
+      const newAgent = {
+        name: agent.name,
+        system: agent.system,
+        refreshRate: agent.refreshRate,
+        transcript: ''
+      }
+      
+      const response = await localStorage.agents.add(newAgent)
       if (response.status === 400) {
         updateName("")
-        updatePlaceholderText("name", response.error)
+        updatePlaceholderText("name", response.error || "")
         updatePlaceholderColor("name", "red")
       } else if (response.status === 200) {
         router.dismissAll()
@@ -28,15 +35,18 @@ const Add = () => {
     }
   }
   
-  return
-    // <AgentForm
-    //   agent={}
-    //   placeholder={placeholder}
-    //   updateName={updateName}
-    //   updateSystem={updateSystem}
-    //   handleNumericInput={handleNumericInput}
-    //   handleAction={handleSaveAgent}
-    // />
+  return(
+    <AgentForm
+      name={agent.name}
+      system={agent.system}
+      refreshRate={agent.refreshRate}
+      placeholder={placeholder}
+      updateName={updateName}
+      updateSystem={updateSystem}
+      handleNumericInput={handleNumericInput}
+      handleAction={handleSaveAgent}
+    />
+    )
   
 }
 

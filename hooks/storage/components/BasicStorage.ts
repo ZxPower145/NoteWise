@@ -62,7 +62,7 @@ class BasicStorage {
       const items = await AsyncStorage.getItem(this.storageKey)
       if (items) {
         this.storageItems = JSON.parse(items)
-        return JSON.parse(items)
+        return this.storageItems
       }
       return []
     } catch (error) {

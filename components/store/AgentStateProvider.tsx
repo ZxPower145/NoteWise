@@ -1,7 +1,22 @@
 import { useState, createContext } from "react";
 import {AgentDataType} from "@/constants/CustomTypes";
 
-export const AgentStateContext = createContext({})
+interface AgentStateContextType {
+  agent: AgentDataType;
+  setAgent: (agent: AgentDataType) => void;
+  updateName: (text: string) => void;
+  updateSystem: (text: string) => void;
+  updateRefreshRate: (text: string) => void;
+  setTranscript: (text: string) => void;
+  placeholder: {
+    name: { text: string; color: string };
+    refreshRate: { text: string; color: string };
+  };
+  updatePlaceholderText: (objectToUpdate: string, newPlaceholder: string) => void;
+  updatePlaceholderColor: (objectToUpdate: string, newColor: string) => void;
+}
+
+export const AgentStateContext = createContext({} as AgentStateContextType)
 
 export const AgentStateProvider = ({ children }) => {
   const [agent, setAgent] = useState<AgentDataType>({

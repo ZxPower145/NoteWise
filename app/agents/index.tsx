@@ -49,7 +49,12 @@ const Index = () => {
       <ScrollView className="border-t border-gray-300" contentContainerStyle={{height: '100%', flexGrow: 1}}>
         {
           agents.map((agent, index) => (
-            <AgentElement key={index} name={agent.name} system={agent.system ? agent.system : ''} refreshRate={agent.refreshRate} />
+            <AgentElement
+              key={index}
+              index={index}
+              name={agent.name}
+              system={agent.system}
+              refreshRate={agent.refreshRate} />
           ))
         }
       </ScrollView>

@@ -10,7 +10,7 @@ interface MeetingDataType {
 
 interface AgentDataType {
   name: string
-  system?: string
+  system: string
   refreshRate: string
   transcript?: string
 }

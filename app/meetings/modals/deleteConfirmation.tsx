@@ -40,9 +40,17 @@ const DeleteConfirmation = () => {
         >
           <SafeAreaView className="p-5 h-full align-center justify-center">
             <View
-              className="border p-5 rounded-xl gap-5"
+              className="border border-gray-300 p-5 rounded-xl gap-5"
               style={{
                 backgroundColor: '#edebeb',
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 7,
+                },
+                shadowOpacity: 40,
+                shadowRadius: 40,
+                elevation: 7,
               }}
               onStartShouldSetResponder={() => true}
             >
