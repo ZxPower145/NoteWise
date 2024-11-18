@@ -1,6 +1,6 @@
 import {createContext, ReactNode, useState} from "react";
 
-interface VoiceState {
+interface VoiceContextType {
   isRecording: boolean;
   transcription: string;
   processingChunks: number;
@@ -11,7 +11,7 @@ interface VoiceState {
   setError: (value: string | null) => void;
 }
 
-export const VoiceStateContext = createContext<VoiceState>({
+export const VoiceContext = createContext<VoiceContextType>({
   isRecording: false,
   transcription: '',
   processingChunks: 0,
@@ -33,7 +33,7 @@ export const VoiceStateProvider = ({ children }: VoiceStateProviderProps) => {
   const [error, setError] = useState<string | null>(null);
   
   return (
-    <VoiceStateContext.Provider
+    <VoiceContext.Provider
       value={{
         isRecording,
         transcription,
@@ -45,6 +45,6 @@ export const VoiceStateProvider = ({ children }: VoiceStateProviderProps) => {
         setError
       }}>
       {children}
-    </VoiceStateContext.Provider>
+    </VoiceContext.Provider>
   );
 };

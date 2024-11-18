@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, TouchableOpacity } from "react-native";
 import Animated, { Easing, FadeInRight, FadeOutLeft, runOnJS } from 'react-native-reanimated';
-import localStorage from "@/hooks/storage/LocalStorage";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 
 const DeleteConfirmation = () => {
   const { title } = useLocalSearchParams()

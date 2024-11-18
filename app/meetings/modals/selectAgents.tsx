@@ -1,10 +1,10 @@
-import {AgentDataType} from "@/constants/CustomTypes";
+import {AgentDataType} from "@/constants/types/CustomTypes";
 import {SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "react-native";;
-import localStorage from "@/hooks/storage/LocalStorage";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 import {useContext, useEffect, useState} from "react";
 import {router} from "expo-router";
 import Animated, { Easing, FadeInRight, FadeOutLeft, runOnJS } from 'react-native-reanimated';
-import {MeetingContext} from "@/components/store/MeetingStateProvider";
+import {MeetingContext} from "@/hooks/storage/store/MeetingStateProvider";
 
 const SelectAgents = () => {
   

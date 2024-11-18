@@ -2,11 +2,11 @@ import {SafeAreaView} from "react-native-safe-area-context"
 import {ScrollView, View, Text, TouchableOpacity} from "react-native"
 import {router, useFocusEffect} from "expo-router"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import AgentElement from "@/components/elements/AgentElement";
+import AgentElement from "@/components/buttons/AgentElement";
 import {useEffect, useState} from "react";
 import * as React from "react";
-import {AgentDataType} from "@/constants/CustomTypes";
-import localStorage from "@/hooks/storage/LocalStorage";
+import {AgentDataType} from "@/constants/types/CustomTypes";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 
 const Index = () => {
   const [agents, setAgents] = useState<AgentDataType[]>([])

@@ -1,11 +1,14 @@
-import { SplashScreen, Tabs } from 'expo-router'
+import {router, SplashScreen, Tabs, usePathname, useSegments} from 'expo-router'
 import { useFonts } from "expo-font"
-import { useEffect } from "react"
+import {useContext, useEffect, useState} from "react"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { StatusBar } from "expo-status-bar"
 import "@/constants/global.css"
 import 'react-native-get-random-values'
+import {AccountStateProvider} from "@/hooks/storage/store/AccountStateProvider";
 
+const Buffer = require("buffer/").Buffer
+global.Buffer = Buffer
 SplashScreen.preventAutoHideAsync()
 
 const RootLayout = () => {
@@ -21,6 +24,10 @@ const RootLayout = () => {
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
   })
   
+  const segments = useSegments()
+  
+  const hide = segments.includes('login') || segments.includes('signup') || segments.includes('reset')
+  
   useEffect(() => {
     if (error) throw error
     
@@ -30,12 +37,20 @@ const RootLayout = () => {
   if (!fontsLoaded && !error) return null
   
   return (
-    <>
+    <AccountStateProvider>
       <Tabs screenOptions={{ tabBarActiveTintColor: '#8867f3' }}>
         <Tabs.Screen name="index" options={{
           headerShown: false,
           title: 'Home',
-          tabBarIcon: ({color}) => <MaterialIcons name="home" size={24} color={color}/>
+          tabBarStyle: {display: 'none'},
+          tabBarButton: () => null
+        }}/>
+        
+        <Tabs.Screen name="account" options={{
+          headerShown: false,
+          title: 'Dashboard',
+          tabBarStyle: {display: hide ? 'none' : 'flex'},
+          tabBarIcon: ({color}) => <MaterialIcons name="calendar-month" size={24} color={color} />
         }}/>
         
         <Tabs.Screen name="meetings" options={{
@@ -51,7 +66,7 @@ const RootLayout = () => {
         }}/>
       </Tabs>
       <StatusBar backgroundColor={'black'} style={'light'} />
-    </>
+    </AccountStateProvider>
   )
 }
 

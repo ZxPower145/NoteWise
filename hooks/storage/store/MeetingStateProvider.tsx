@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-import {AgentDataType, MeetingDataType} from "@/constants/CustomTypes";
-import localStorage from "@/hooks/storage/LocalStorage";
+import {AgentDataType, MeetingDataType} from "@/constants/types/CustomTypes";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 
 interface MeetingContextType {
   meeting: MeetingDataType
@@ -12,7 +12,7 @@ interface MeetingContextType {
 
 export const MeetingContext = createContext<MeetingContextType | undefined>(undefined)
 
-export const MeetingContextProvider = ({ children }) => {
+export const MeetingStateProvider = ({ children }) => {
   const [meeting, setMeeting] = useState<MeetingDataType>({
     agents: [],
     date: "",

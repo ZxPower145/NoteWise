@@ -1,6 +1,6 @@
 import { Stack } from "expo-router"
 import {StatusBar} from "expo-status-bar"
-import {AgentStateProvider} from "@/components/store/AgentStateProvider";
+import {AgentStateProvider} from "@/hooks/storage/store/AgentStateProvider";
 
 const AgentsLayout = () => {
   return (

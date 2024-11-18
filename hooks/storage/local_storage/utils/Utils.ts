@@ -1,4 +1,4 @@
-import { LocalStorageResponseType } from "@/constants/CustomTypes";
+import { LocalStorageResponseType } from "@/constants/types/CustomTypes";
 
 class Utils {
   static generateResponse(status: number, error?: string) : LocalStorageResponseType {

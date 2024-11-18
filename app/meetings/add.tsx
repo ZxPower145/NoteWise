@@ -2,10 +2,10 @@ import {TouchableOpacity, Text, View, ScrollView} from "react-native"
 import { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
-import { MeetingDataType } from "@/constants/CustomTypes"
-import CustomTextInput from "@/components/elements/CustomTextInput"
+import { MeetingDataType } from "@/constants/types/CustomTypes"
+import CustomTextInput from "@/components/inputs/CustomTextInput"
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import localStorage from "@/hooks/storage/LocalStorage"
+import localStorage from "@/hooks/storage/local_storage/LocalStorage"
 
 const Add = () => {
   const date = new Date()

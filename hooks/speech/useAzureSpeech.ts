@@ -1,33 +1,30 @@
-import {useEffect, useState} from "react"
-import { Audio } from "expo-av"
-import * as FileSystem from 'expo-file-system'
-import * as Sharing from 'expo-sharing';
+import {useEffect, useRef, useState} from "react";
+import {Audio} from "expo-av";
+import * as FileSystem from 'expo-file-system';
+import {EncodingType} from 'expo-file-system';
 import {
   AudioConfig,
-  CancellationDetails,
-  CancellationReason,
+  PushAudioInputStream,
   ResultReason,
   SpeechConfig,
   SpeechRecognizer
-} from "microsoft-cognitiveservices-speech-sdk"
-
+} from "microsoft-cognitiveservices-speech-sdk";
 import {
   AndroidAudioEncoder,
   AndroidOutputFormat,
   IOSAudioQuality,
   IOSOutputFormat
-} from "expo-av/build/Audio/RecordingConstants"
-import {Platform} from "react-native";
+} from "expo-av/build/Audio/RecordingConstants";
 
 const RecordingOptions: Audio.RecordingOptions = {
   isMeteringEnabled: true,
   android: {
     extension: '.wav',
-    outputFormat: AndroidOutputFormat.DEFAULT,
-    audioEncoder: AndroidAudioEncoder.DEFAULT,
+    outputFormat: AndroidOutputFormat.MPEG_4,
+    audioEncoder: AndroidAudioEncoder.AAC,
     sampleRate: 16000,
     numberOfChannels: 1,
-    bitRate: 256000,
+    bitRate: 16000,
   },
   ios: {
     extension: '.wav',
@@ -35,41 +32,70 @@ const RecordingOptions: Audio.RecordingOptions = {
     audioQuality: IOSAudioQuality.HIGH,
     sampleRate: 16000,
     numberOfChannels: 1,
-    bitRate: 256000,
+    bitRate: 128000,
     linearPCMBitDepth: 16,
     linearPCMIsBigEndian: false,
     linearPCMIsFloat: false,
   },
   web: {
     mimeType: 'audio/wav',
-    bitsPerSecond: 256000,
+    bitsPerSecond: 128000,
   },
 }
 
-export const useAzureSpeech = (key: string, region: string, language: "en-US" | "ro-RO") => {
-  const [recording, setRecording] = useState<Audio.Recording>(null)
-  const [isRecording, setIsRecording] = useState<boolean>(false)
-  const [transcript, setTranscript] = useState<string>("")
-  const Buffer = require('buffer/').Buffer
+export const useAzureSpeechStream = (key: string, region: string, language: "en-US" | "ro-RO") => {
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [transcript, setTranscript] = useState<string>("");
+  
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastProcessedPosition = useRef(0);
+  const stream = useRef(PushAudioInputStream.create());
   
   const speechConfig = SpeechConfig.fromSubscription(key, region)
-  speechConfig.speechRecognitionLanguage = language
+  
+  speechConfig.speechRecognitionLanguage = language;
+  const audioConfig = AudioConfig.fromStreamInput(stream.current);
+  const recognizer = useRef(new SpeechRecognizer(speechConfig, audioConfig));
+  
+  useEffect(() => {
+    recognizer.current.recognizing = (s, e) => {
+      if (e.result.reason === ResultReason.RecognizingSpeech) {
+        console.log(`Recognizing: ${e.result.text}`);
+        setTranscript((prev) => prev + " " + e.result.text);
+      }
+    };
+
+    recognizer.current.recognized = (s, e) => {
+      if (e.result.reason === ResultReason.RecognizedSpeech) {
+        console.log(`Recognized: ${e.result.text}`);
+        setTranscript((prev) => prev + " " + e.result.text);
+      }
+    };
+
+    recognizer.current.startContinuousRecognitionAsync();
+
+    return () => {
+      recognizer.current.stopContinuousRecognitionAsync();
+      recognizer.current.close();
+    };
+  }, []);
   
   const requestAudioPermissions = async () => {
-    const response = await Audio.requestPermissionsAsync()
-    return response.status === 'granted'
-  }
+    const response = await Audio.requestPermissionsAsync();
+    return response.status === 'granted';
+  };
   
   const startRecording = async () => {
     try {
       if (recording) {
-        await recording.stopAndUnloadAsync()
-        setRecording(null)
+        await recording.stopAndUnloadAsync();
+        setRecording(null);
       }
       
-      const hasPermission = await requestAudioPermissions()
+      const hasPermission = await requestAudioPermissions();
       if (!hasPermission) {
-        throw new Error('Permission to access microphone is required!')
+        throw new Error('Permission to access microphone is required!');
       }
       
       await Audio.setAudioModeAsync({
@@ -77,160 +103,61 @@ export const useAzureSpeech = (key: string, region: string, language: "en-US" | 
         playsInSilentModeIOS: true,
         staysActiveInBackground: true,
         shouldDuckAndroid: true,
-      })
+      });
       
-      const newRecording = new Audio.Recording()
-      await newRecording.prepareToRecordAsync(RecordingOptions)
-      await newRecording.startAsync()
+      const newRecording = new Audio.Recording();
+      await newRecording.prepareToRecordAsync(RecordingOptions);
+      await newRecording.startAsync();
+      setRecording(newRecording);
+      setIsRecording(true);
+      console.log('Recording started');
       
-      setRecording(newRecording)
-      setIsRecording(true)
-      console.log('Recording started')
-    } catch (error) {
-      console.error('Failed to start recording:', error)
-      setIsRecording(false)
-      throw error
-    }
-  }
-  
-  const createWavHeader = (dataLength: number) => {
-    const buffer = Buffer.alloc(44);
-    
-    // RIFF chunk descriptor
-    buffer.write('RIFF', 0);
-    buffer.writeUInt32LE(36 + dataLength, 4);
-    buffer.write('WAVE', 8);
-    
-    // Format sub-chunk
-    buffer.write('fmt ', 12);
-    buffer.writeUInt32LE(16, 16); // Subchunk1Size (16 for PCM)
-    buffer.writeUInt16LE(1, 20); // AudioFormat (1 for PCM)
-    buffer.writeUInt16LE(1, 22); // NumChannels (1 for mono)
-    buffer.writeUInt32LE(16000, 24); // SampleRate
-    buffer.writeUInt32LE(32000, 28); // ByteRate (SampleRate * NumChannels * BitsPerSample/8)
-    buffer.writeUInt16LE(2, 32); // BlockAlign (NumChannels * BitsPerSample/8)
-    buffer.writeUInt16LE(16, 34); // BitsPerSample
-    
-    // Data sub-chunk
-    buffer.write('data', 36);
-    buffer.writeUInt32LE(dataLength, 40);
-    
-    return buffer;
-  };
+      intervalRef.current = setInterval(async () => {
+        const uri = newRecording.getURI();
+        if (uri) {
+          const fileInfo = await FileSystem.getInfoAsync(uri, {size: true})
+          if (fileInfo.exists) {
+            const fileString = await FileSystem.readAsStringAsync(uri, {
+              encoding: EncodingType.Base64
+            })
 
-// Improved audio file conversion with additional validation
-  const convertToWav = (audioData: Buffer): Buffer => {
-    // Check if the audio data already has a RIFF header
-    const hasRiffHeader = audioData.slice(0, 4).toString() === 'RIFF';
-    
-    if (hasRiffHeader) {
-      console.log('Audio data already has RIFF header');
-      return audioData;
-    }
-    
-    const header = createWavHeader(audioData.length);
-    return Buffer.concat([header, audioData]);
-  };
-  
-  const getTranscriptFromFile = async (uri): Promise<any> => {
-    try {
-      console.log("Processing audio file:", uri);
-      
-      const fileContent = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64
-      });
-      
-      const audioBuffer = Buffer.from(fileContent, 'base64');
-      console.log("Audio buffer size:", audioBuffer.length);
-      
-      const wavBuffer = convertToWav(audioBuffer);
-      console.log("WAV buffer size:", wavBuffer.length);
-      console.log("First 44 bytes (header):", wavBuffer.slice(0, 44));
-      
-      const audioConfig = AudioConfig.fromWavFileInput(wavBuffer);
-      const recognizer = new SpeechRecognizer(speechConfig, audioConfig);
-      
-      return new Promise((resolve, reject) => {
-        recognizer.recognizeOnceAsync(
-          result => {
-            if (result.reason === ResultReason.RecognizedSpeech) {
-              console.log(`RECOGNIZED: ${result.text}`);
-              resolve(result.text);
-            } else {
-              const errorDetails = result.reason === ResultReason.Canceled
-                ? CancellationDetails.fromResult(result).errorDetails
-                : 'Speech could not be recognized.';
-              console.error(`Recognition failed: ${errorDetails}`);
-              reject(new Error(errorDetails));
-            }
-            recognizer.close();
-          },
-          error => {
-            console.error('Error during recognition:', error);
-            recognizer.close();
-            reject(error);
+            const fileBuffer = Buffer.from(fileString, 'base64')
+
+            stream.current.write(fileBuffer)
           }
-        );
-      });
+        }
+      }, 3000);
+      
     } catch (error) {
-      console.error('Error processing audio:', error);
+      console.error('Failed to start recording:', error);
+      setIsRecording(false);
       throw error;
     }
   };
-  
-  async function shareCacheFile(fileUri): Promise<void> {
-    if (Platform.OS !== 'android') {
-      throw new Error('This function is only supported on Android');
-    }
-    
-    try {
-      // Verify file exists
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (!fileInfo.exists) {
-        throw new Error('File does not exist');
-      }
-      
-      // Check if sharing is available
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (!isSharingAvailable) {
-        throw new Error('Sharing is not available on this platform');
-      }
-      
-      // Share with UTI for audio
-      await Sharing.shareAsync(fileUri, {
-        mimeType: 'audio/wav',
-        dialogTitle: 'Save audio file',
-        UTI: 'public.audio'
-      });
-      
-      console.log('File sharing dialog opened');
-    } catch (error) {
-      console.error('Error sharing file:', error);
-      throw error;
-    }
-  }
   
   const stopRecording = async () => {
-    if (!recording) return
+    if (!recording) return;
     
     try {
-      await recording.stopAndUnloadAsync()
-      const uri = recording.getURI()
-      setRecording(null)
-      setIsRecording(false)
+      await recording.stopAndUnloadAsync();
+      console.log("Recording Stopped")
+      setRecording(null);
+      setIsRecording(false);
       
-      // await shareCacheFile(uri)
-      return await getTranscriptFromFile(uri)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current as NodeJS.Timeout);
+        intervalRef.current = null;
+      }
     } catch (error) {
-      console.error("Error stopping recording:", error)
-      throw error
+      console.error("Error stopping recording:", error);
+      throw error;
     }
-  }
+  };
   
   return {
     isRecording,
     transcript,
     startRecording,
-    stopRecording
-  }
-}
+    stopRecording,
+  };
+};

@@ -1,8 +1,8 @@
 import {router, useLocalSearchParams, useNavigation} from "expo-router"
 import { useState, useEffect } from "react"
 import {ScrollView, Text, TouchableOpacity, View} from "react-native"
-import LocalStorage from "@/hooks/storage/LocalStorage"
-import {MeetingDataType} from "@/constants/CustomTypes";
+import LocalStorage from "@/hooks/storage/local_storage/LocalStorage"
+import {MeetingDataType} from "@/constants/types/CustomTypes";
 import {SafeAreaView} from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 

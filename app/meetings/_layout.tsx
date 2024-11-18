@@ -1,11 +1,11 @@
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar";
-import {VoiceStateProvider} from "@/components/store/VoiceStateProvider";
-import {MeetingContextProvider} from "@/components/store/MeetingStateProvider";
+import {VoiceStateProvider} from "@/hooks/storage/store/VoiceStateProvider";
+import {MeetingStateProvider} from "@/hooks/storage/store/MeetingStateProvider";
 
 const MeetingsLayout = () => {
   return (
-    <MeetingContextProvider>
+    <MeetingStateProvider>
       <VoiceStateProvider>
         <Stack screenOptions={{
           headerTitleStyle: {
@@ -45,7 +45,7 @@ const MeetingsLayout = () => {
         </Stack>
         <StatusBar backgroundColor="black" style="light" />
       </VoiceStateProvider>
-    </MeetingContextProvider>
+    </MeetingStateProvider>
   )
 }
 

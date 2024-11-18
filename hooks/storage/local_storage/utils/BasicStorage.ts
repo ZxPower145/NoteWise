@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Utils from "@/hooks/storage/components/Utils";
-import {AgentDataType, MeetingDataType} from "@/constants/CustomTypes";
+import Utils from "@/hooks/storage/local_storage/utils/Utils";
+import {AgentDataType, MeetingDataType} from "@/constants/types/CustomTypes";
 
 class BasicStorage {
   private readonly storageKey

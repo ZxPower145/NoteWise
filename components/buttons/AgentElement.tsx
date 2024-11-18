@@ -1,6 +1,6 @@
 import {View, Text, TouchableOpacity} from "react-native"
-import { AgentDataType } from "@/constants/CustomTypes"
-import localStorage from "@/hooks/storage/LocalStorage"
+import { AgentDataType } from "@/constants/types/CustomTypes"
+import localStorage from "@/hooks/storage/local_storage/LocalStorage"
 import {router} from "expo-router";
 
 const AgentElement = ({name, index}) => {

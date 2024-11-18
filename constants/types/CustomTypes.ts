@@ -20,4 +20,11 @@ interface LocalStorageResponseType {
   error?: string
 }
 
-export { MeetingDataType, AgentDataType, LocalStorageResponseType }
+interface AccountInfo {
+  email: string
+  password?: string
+  token?: string
+  name?: string
+}
+
+export { MeetingDataType, AgentDataType, LocalStorageResponseType, AccountInfo }

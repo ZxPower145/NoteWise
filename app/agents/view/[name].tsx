@@ -1,9 +1,9 @@
 import {router, useLocalSearchParams, useNavigation} from "expo-router"
 import {useContext, useEffect, useState} from "react"
-import {AgentStateContext} from "@/components/store/AgentStateProvider";
-import localStorage from "@/hooks/storage/LocalStorage";
-import AgentForm from "@/components/pages/AgentForm";
-import {AgentDataType} from "@/constants/CustomTypes";
+import {AgentContext} from "@/hooks/storage/store/AgentStateProvider";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
+import AgentForm from "@/components/forms/AgentForm";
+import {AgentDataType} from "@/constants/types/CustomTypes";
 import {ActivityIndicator, Text, View} from "react-native";
 
 const AgentDetails = () => {
@@ -13,7 +13,7 @@ const AgentDetails = () => {
   const {
     agent, setAgent, updateName, updateSystem, updateRefreshRate,
     placeholder, updatePlaceholderText, updatePlaceholderColor
-  } = useContext(AgentStateContext)
+  } = useContext(AgentContext)
   
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

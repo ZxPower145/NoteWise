@@ -3,8 +3,8 @@ import {useContext, useEffect, useState} from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {router, useLocalSearchParams, useNavigation} from "expo-router"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { useAzureSpeech } from "@/hooks/speech/useAzureSpeech";
-import { MeetingContext } from "@/components/store/MeetingStateProvider";
+import { useAzureSpeechStream } from "@/hooks/speech/useAzureSpeech";
+import { MeetingContext } from "@/hooks/storage/store/MeetingStateProvider";
 import { KEY, REGION } from "@env"
 
 const LiveMeeting = () => {
@@ -16,8 +16,8 @@ const LiveMeeting = () => {
   } = useContext(MeetingContext)
   
   const {
-    isRecording, startRecording, stopRecording
-  } = useAzureSpeech(KEY, REGION, "en-US")
+    isRecording, transcript, startRecording, stopRecording
+  } = useAzureSpeechStream(KEY, REGION, "en-US")
   
   useEffect(() => {
     const init = async () => {
@@ -32,6 +32,12 @@ const LiveMeeting = () => {
   useEffect(() => {
     // console.log(meeting.agents)
   }, [meeting.agents])
+  
+  useEffect(() => {
+    if (transcript) {
+      updateTranscript(transcript)
+    }
+  }, [transcript])
   
   return (
     <SafeAreaView className="h-full flex-1">

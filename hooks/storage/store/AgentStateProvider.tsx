@@ -1,7 +1,7 @@
 import { useState, createContext } from "react";
-import {AgentDataType} from "@/constants/CustomTypes";
+import {AgentDataType} from "@/constants/types/CustomTypes";
 
-interface AgentStateContextType {
+interface AgentContextType {
   agent: AgentDataType;
   setAgent: (agent: AgentDataType) => void;
   updateName: (text: string) => void;
@@ -16,7 +16,7 @@ interface AgentStateContextType {
   updatePlaceholderColor: (objectToUpdate: string, newColor: string) => void;
 }
 
-export const AgentStateContext = createContext({} as AgentStateContextType)
+export const AgentContext = createContext({} as AgentContextType)
 
 export const AgentStateProvider = ({ children }) => {
   const [agent, setAgent] = useState<AgentDataType>({
@@ -86,7 +86,7 @@ export const AgentStateProvider = ({ children }) => {
   }
   
   return (
-    <AgentStateContext.Provider value={{
+    <AgentContext.Provider value={{
       agent,
       setAgent,
       updateName,
@@ -98,6 +98,6 @@ export const AgentStateProvider = ({ children }) => {
       updatePlaceholderColor
     }}>
       { children }
-    </AgentStateContext.Provider>
+    </AgentContext.Provider>
   )
 }

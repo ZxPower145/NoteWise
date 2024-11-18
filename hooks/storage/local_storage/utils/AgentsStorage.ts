@@ -1,4 +1,4 @@
-import BasicStorage from "@/hooks/storage/components/BasicStorage";
+import BasicStorage from "@/hooks/storage/local_storage/utils/BasicStorage";
 
 class AgentsStorage extends BasicStorage{
   constructor() {

@@ -1,12 +1,12 @@
-import localStorage from "@/hooks/storage/LocalStorage";
-import { AgentStateContext } from "@/components/store/AgentStateProvider";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
+import { AgentContext } from "@/hooks/storage/store/AgentStateProvider";
 import {useContext} from "react";
 import {router} from "expo-router";
-import AgentForm from "@/components/pages/AgentForm";
+import AgentForm from "@/components/forms/AgentForm";
 
 const Add = () => {
   const { agent, setAgent, updateName, updateSystem, updateRefreshRate,
-    placeholder, updatePlaceholderText, updatePlaceholderColor } = useContext(AgentStateContext)
+    placeholder, updatePlaceholderText, updatePlaceholderColor } = useContext(AgentContext)
   
   const handleNumericInput = (text) => {
     const numValue = text.replace(/[^0-9]/g, '')
