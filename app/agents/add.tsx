@@ -1,14 +1,15 @@
-import localStorage from "@/hooks/storage/local_storage/LocalStorage";
+import React, { useContext } from "react";
+import { router } from "expo-router";
 import { AgentContext } from "@/hooks/storage/store/AgentStateProvider";
-import {useContext} from "react";
-import {router} from "expo-router";
+import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 import AgentForm from "@/components/forms/AgentForm";
+import { Response } from "@/constants/types/CustomTypes"
 
-const Add = () => {
-  const { agent, setAgent, updateName, updateSystem, updateRefreshRate,
+export default function Add() : React.ReactNode {
+  const { agent, updateName, updateSystem, updateRefreshRate,
     placeholder, updatePlaceholderText, updatePlaceholderColor } = useContext(AgentContext)
   
-  const handleNumericInput = (text) => {
+  const handleNumericInput = (text: string) => {
     const numValue = text.replace(/[^0-9]/g, '')
     updateRefreshRate(numValue)
   }
@@ -22,16 +23,16 @@ const Add = () => {
         transcript: ''
       }
       
-      const response = await localStorage.agents.add(newAgent)
+      const response: Response = await localStorage.agents.add(newAgent)
       if (response.status === 400) {
         updateName("")
-        updatePlaceholderText("name", response.error || "")
-        updatePlaceholderColor("name", "red")
+        
       } else if (response.status === 200) {
         router.dismissAll()
       }
-    } catch (error) {
-      console.error(error)
+    } catch (error: any) {
+      updatePlaceholderText("name", error.message || "")
+      updatePlaceholderColor("name", "red")
     }
   }
   
@@ -46,8 +47,5 @@ const Add = () => {
       handleNumericInput={handleNumericInput}
       handleAction={handleSaveAgent}
     />
-    )
-  
+  )
 }
-
-export default Add

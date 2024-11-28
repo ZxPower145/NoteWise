@@ -1,6 +1,7 @@
+import React from 'react'
 import { Text, View, TouchableOpacity } from 'react-native'
-import { router } from "expo-router";
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { router } from "expo-router"
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 
 interface meetingInfo {
   startTime: string,
@@ -8,7 +9,7 @@ interface meetingInfo {
   title: string,
 }
 
-const MeetingElement = (data: meetingInfo) => {
+export default function MeetingElement(data: meetingInfo): React.ReactNode {
   return (
     <View className="flex-row min-h-[60px] items-center justify-between border-b
     border-gray-300 px-1 my-1">
@@ -43,5 +44,3 @@ const MeetingElement = (data: meetingInfo) => {
     </View>
   )
 }
-
-export default MeetingElement

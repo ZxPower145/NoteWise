@@ -1,43 +1,62 @@
 import {ScrollView, Text, TouchableOpacity, View} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {AccountContext} from "@/hooks/storage/store/AccountStateProvider";
 import {router, useFocusEffect} from "expo-router";
+import AppointmentCard from "@/components/cards/AppointmentCard";
+import { getAppointments } from "@/services/AppointmentService";
+import { Appointment } from "@/constants/types/AppointmentTypes";
+import {Appbar} from "react-native-paper";
 
-const Dashboard = () => {
-  const {account, logOut, getAppointments} = useContext(AccountContext)
-  const [appointments, setAppointments] = useState(null)
+export default function Dashboard (): React.ReactNode  {
+  const accountContext = useContext(AccountContext)
+  const [appointments, setAppointments] = useState<Array<Appointment>>([])
+  const [loading, setIsLoading] = useState<boolean>(true)
   
   useFocusEffect(React.useCallback(() => {
-    if (!account) {
-      router.replace('account/login')
+    if (!accountContext?.isAuthenticated) {
+      setIsLoading(true)
+      router.replace('/')
     }
-    getAppointments()
-  }, []))
+  }, [accountContext?.isAuthenticated]))
   
-  if (!account) return null
+  useEffect(() => {
+    setIsLoading(true)
+    const handleAppointments:() => void = async (): Promise<void> => {
+      const fetchedAppointments = await getAppointments(accountContext?.account?.token || "")
+      setAppointments(fetchedAppointments)
+    }
+    handleAppointments()
+    if (appointments) setIsLoading(false)
+  }, [accountContext?.account]);
+  
+  if (loading) return null
   
   return (
-    <SafeAreaView className="h-full w-full">
-      <View className="flex-row justify-center">
-        <Text className="text-2xl text-center mx-auto">
-          Dashboard
-        </Text>
-        <TouchableOpacity className="align-center justify-center px-2 border"
-          onPress={() => logOut()}
-        >
-          <Text>
-            Log Out
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView contentContainerStyle={{height: '100%', width: '100%'}}>
-        <View>
-        
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View>
+      <Appbar.Header>
+        <Appbar.Content title={"Programări"} />
+      </Appbar.Header>
+      <SafeAreaView className="w-full" style={{maxHeight: '85%'}}>
+        <ScrollView contentContainerStyle={{ gap: 20 }}>
+          {
+            appointments.map((appointment, index) => {
+              return (
+                <AppointmentCard
+                  key={index}
+                  name={appointment.patientName}
+                  date={appointment.date}
+                  startTime={appointment.startTime}
+                  endTime={appointment.endTime}
+                  issues={appointment.patientIssues}
+                  appointmentType={appointment.type}
+                  contact={appointment.patientEmail}
+                />
+              )
+            })
+          }
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   )
 }
-
-export default Dashboard

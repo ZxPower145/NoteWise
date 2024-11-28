@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { router, useLocalSearchParams } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, TouchableOpacity } from "react-native";
-import Animated, { Easing, FadeInRight, FadeOutLeft, runOnJS } from 'react-native-reanimated';
-import localStorage from "@/hooks/storage/local_storage/LocalStorage";
+import React, { useState } from "react"
+import { router, useLocalSearchParams } from "expo-router"
+import { SafeAreaView } from "react-native-safe-area-context"
+import {View, Text, TouchableOpacity, StyleSheet} from "react-native"
+import Animated, { Easing, FadeInRight, FadeOutLeft, runOnJS } from 'react-native-reanimated'
+import localStorage from "@/hooks/storage/local_storage/LocalStorage"
+import NamedStyles = StyleSheet.NamedStyles;
 
-const DeleteConfirmation = () => {
+export default function DeleteConfirmation() : React.ReactNode {
   const { title } = useLocalSearchParams()
   const [isVisible, setIsVisible] = useState(true)
+  
   
   const closeModal = () => {
     setIsVisible(false)
@@ -35,27 +37,14 @@ const DeleteConfirmation = () => {
                 runOnJS(router.back)()
               }
             })
-          }
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
+        } style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <SafeAreaView className="p-5 h-full align-center justify-center">
-            <View
-              className="border border-gray-300 p-5 rounded-xl gap-5"
-              style={{
-                backgroundColor: '#edebeb',
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 7,
-                },
-                shadowOpacity: 40,
-                shadowRadius: 40,
-                elevation: 7,
-              }}
+            <View className="border border-gray-300 p-5 rounded-xl gap-5"
+              style={styles.container}
               onStartShouldSetResponder={() => true}
             >
               <Text className="font-semibold text-2xl text-center">
-                Are you sure you want to delete '{title}' ?
+                Are you sure you want to delete {title} ?
               </Text>
               <View className="flex-row justify-evenly">
                 <TouchableOpacity onPress={() => {
@@ -72,7 +61,19 @@ const DeleteConfirmation = () => {
         </Animated.View>
       )}
     </TouchableOpacity>
-  );
-};
+  )
+}
 
-export default DeleteConfirmation;
+const styles = StyleSheet.create<NamedStyles<any>>({
+  container: {
+    backgroundColor: '#edebeb',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 40,
+    shadowRadius: 40,
+    elevation: 7,
+  }
+})

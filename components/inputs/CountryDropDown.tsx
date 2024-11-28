@@ -1,35 +1,28 @@
-import React, {useEffect, useState} from "react";
-import {StyleSheet, TouchableOpacity, View} from "react-native";
-import {MaterialIcons} from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet } from "react-native";
+import NamedStyles = StyleSheet.NamedStyles;
+import {SelectList} from "react-native-dropdown-select-list";
 
 interface CountryDropDownChildren {
   onSelect: (value: string) => void,
-  containerWidth?: string
+  data: Array<any>
+  styles?: NamedStyles<any>
+  placeholder: string
 }
 
-const CountryDropDown = (props: CountryDropDownChildren) => {
-  const [expanded, setExpanded] = useState<boolean>(false)
-  
-  const styles = StyleSheet.create({
-    containerStyle: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: props.containerWidth,
-      // paddingVertical: 5,
-      // paddingHorizontal: 10,
-      borderRadius: 15
-    }
-  })
-  
+export default function CountryDropDown(props: CountryDropDownChildren): React.ReactNode {
   return (
-    <TouchableOpacity style={styles.containerStyle}>
-      <MaterialIcons name="phone" size={24} color="black" />
-      <MaterialIcons name={`keyboard-arrow-${expanded ? 'up' : 'down'}`} size={24} color="black" />
-    </TouchableOpacity>
+    <SelectList
+      data={props.data}
+      search={true}
+      setSelected={(value: string) => props.onSelect(value)}
+    />
+    // <SelectList
+    //   data={props.data}
+    //   placeholder={props.placeholder}
+    //   search={true}
+    //   setSelected={(val: string) => props.onSelect(val)}
+    //   save={'value'}
+    // />
   )
 }
-
-
-export default CountryDropDown

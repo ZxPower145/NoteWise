@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions":[
+      "permissions": [
         "INTERNET",
         "RECORD_AUDIO",
         "WRITE_EXTERNAL_FILES",

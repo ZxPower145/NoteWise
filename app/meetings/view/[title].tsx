@@ -1,12 +1,14 @@
-import {router, useLocalSearchParams, useNavigation} from "expo-router"
-import { useState, useEffect } from "react"
-import {ScrollView, Text, TouchableOpacity, View} from "react-native"
+import React, { useState, useEffect } from "react"
+import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import {router, useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router"
+import { SafeAreaView } from "react-native-safe-area-context"
 import LocalStorage from "@/hooks/storage/local_storage/LocalStorage"
-import {MeetingDataType} from "@/constants/types/CustomTypes";
-import {SafeAreaView} from "react-native-safe-area-context";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { MeetingDataType } from "@/constants/types/CustomTypes"
+import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 
-const MeetingDetails = () => {
+export default function MeetingDetails() : React.ReactNode {
+  const { title } = useLocalSearchParams()
+  
   const [meeting, setMeeting] = useState<MeetingDataType>({
     title: '',
     date: '',
@@ -16,13 +18,11 @@ const MeetingDetails = () => {
     agents: []
   })
   
-  const { title } = useLocalSearchParams()
-  
-  const navigation = useNavigation()
-  
-  const getMeeting = async () => {
-    if (!Array.isArray(title)) {
-      const filteredMeeting = await LocalStorage.meetings.get(title)
+  useFocusEffect(React.useCallback(() => {
+    useNavigation().setOptions({ title: title || "" })
+    
+    const getMeeting = async (): Promise<void> => {
+      const filteredMeeting = await LocalStorage.meetings.get(title as string)
       if (filteredMeeting) {
         setMeeting(filteredMeeting)
       } else {
@@ -30,17 +30,9 @@ const MeetingDetails = () => {
       }
       console.info(filteredMeeting)
     }
-  }
   
-  useEffect(() => {
     getMeeting()
-  }, [])
-  
-  useEffect(() => {
-    navigation.setOptions({
-      title: title
-    })
-  }, [])
+  }, [title]))
   
   return (
     <SafeAreaView className="h-full px-2">
@@ -75,5 +67,3 @@ const MeetingDetails = () => {
     </SafeAreaView>
   )
 }
-  
-export default MeetingDetails

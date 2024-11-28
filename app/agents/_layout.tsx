@@ -1,8 +1,9 @@
+import React from "react";
 import { Stack } from "expo-router"
-import {StatusBar} from "expo-status-bar"
-import {AgentStateProvider} from "@/hooks/storage/store/AgentStateProvider";
+import { StatusBar } from "expo-status-bar"
+import { AgentStateProvider } from "@/hooks/storage/store/AgentStateProvider";
 
-const AgentsLayout = () => {
+export default function AgentsLayout(): React.ReactNode {
   return (
     <AgentStateProvider>
       <Stack>
@@ -20,5 +21,3 @@ const AgentsLayout = () => {
     </AgentStateProvider>
   )
 }
-
-export default AgentsLayout

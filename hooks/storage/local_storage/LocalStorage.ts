@@ -16,11 +16,10 @@ class LocalStorage {
   async initializeStorages() {
     await this.meetings.initializeStorage()
     await this.agents.initializeStorage()
-    await this.account.initializeStorage()
     
     // await this.agents.clearStorage()
     // await this.meetings.clearStorage()
-    // await this.account.remove()
+    // await this.account.logOut()
   }
 }
 

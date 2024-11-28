@@ -1,30 +1,22 @@
-import {router, useLocalSearchParams, useNavigation} from "expo-router"
-import {useContext, useEffect, useState} from "react"
-import {AgentContext} from "@/hooks/storage/store/AgentStateProvider";
+import React, { useContext, useEffect, useState } from "react"
+import {router, useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router"
+import { ActivityIndicator, Text, View } from "react-native";
+import { AgentContext } from "@/hooks/storage/store/AgentStateProvider";
 import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 import AgentForm from "@/components/forms/AgentForm";
-import {AgentDataType} from "@/constants/types/CustomTypes";
-import {ActivityIndicator, Text, View} from "react-native";
 
-const AgentDetails = () => {
+export default function AgentDetails(): React.ReactNode {
   const { name, index } = useLocalSearchParams()
-  const navigation = useNavigation()
+  const { agent, setAgent, updateName, updateSystem, updateRefreshRate, placeholder } = useContext(AgentContext)
   
-  const {
-    agent, setAgent, updateName, updateSystem, updateRefreshRate,
-    placeholder, updatePlaceholderText, updatePlaceholderColor
-  } = useContext(AgentContext)
-  
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   
-  useEffect(() => {
-    navigation.setOptions({
+  useFocusEffect(React.useCallback(() => {
+    useNavigation().setOptions({
       title: name
     })
-  }, [name])
-  
-  useEffect(() => {
+    
     const initializeAgent = async () => {
       if (!Array.isArray(name)) {
         try {
@@ -53,7 +45,8 @@ const AgentDetails = () => {
     }
     
     initializeAgent()
-  }, [name])
+    
+  }, [name, setAgent]))
   
   const handleNumericInput = (text: string) => {
     const numValue = text.replace(/[^0-9]/g, '')
@@ -102,5 +95,3 @@ const AgentDetails = () => {
     />
   )
 }
-
-export default AgentDetails

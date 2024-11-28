@@ -1,15 +1,16 @@
 import BasicStorage from "@/hooks/storage/local_storage/utils/BasicStorage";
+import { AgentDataType } from "@/constants/types/CustomTypes";
 
-class AgentsStorage extends BasicStorage{
+export default class AgentsStorage extends BasicStorage<AgentDataType>{
   constructor() {
     super(
-      "agents",
-      "name",
-      "The Agent's name is required.",
-      "You already have an Agent with this name.",
-      "There was an error finding your Agent."
+      {
+        storageKey: "agents",
+        primaryKeyPropertyName: "name",
+        noPrimaryKeyError: "The Agent's name is required.",
+        notUniqueError: "You already have an Agent with this name.",
+        notFoundError: "There was an error finding your Agent."
+      }
     )
   }
 }
-
-export default AgentsStorage

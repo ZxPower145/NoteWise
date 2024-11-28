@@ -1,4 +1,5 @@
-import {TextInput, View} from "react-native"
+import React from 'react';
+import { TextInput, View } from "react-native"
 
 interface CustomTextInputProps {
   overrideClasses?: string
@@ -16,42 +17,24 @@ interface CustomTextInputProps {
   onChangeText: (text: string) => void
 }
 
-const CustomTextInput = (
-  { overrideClasses = '',
-    extraClasses = '',
-    cursorColor = 'black',
-    autoCapitalize = 'sentences',
-    placeholder = '',
-    isMultiline = false,
-    maxLength = 50,
-    noOfLines = 1,
-    placeholderTextColor = '',
-    textAlignVertical = "bottom",
-    verticalAlign = "bottom",
-    value,
-    onChangeText
-  }: CustomTextInputProps) => {
+export default function CustomTextInput(props: CustomTextInputProps): React.ReactNode {
   return (
-    <View className={
-        `${overrideClasses ? overrideClasses :
-          `p-3 w-full rounded-xl border-b border-gray-300 ${extraClasses}`}`
-      }>
+    <View
+      className={`${props.overrideClasses ? props.overrideClasses :  `p-3 w-full rounded-xl border-b border-gray-300 ${props.extraClasses}`}`}>
       <TextInput
-        cursorColor={cursorColor}
-        autoCapitalize={autoCapitalize}
-        placeholder={placeholder}
-        value={String(value)}
-        onChangeText={onChangeText}
-        textAlignVertical={textAlignVertical}
-        multiline={isMultiline}
-        maxLength={maxLength}
-        verticalAlign={verticalAlign}
-        numberOfLines={noOfLines}
+        cursorColor={props.cursorColor}
+        autoCapitalize={props.autoCapitalize}
+        placeholder={props.placeholder}
+        value={String(props.value)}
+        onChangeText={props.onChangeText}
+        textAlignVertical={props.textAlignVertical}
+        multiline={props.isMultiline}
+        maxLength={props.maxLength}
+        verticalAlign={props.verticalAlign}
+        numberOfLines={props.noOfLines}
         selectionColor={'#8867f3'}
-        placeholderTextColor={placeholderTextColor}
+        placeholderTextColor={props.placeholderTextColor}
       />
     </View>
   )
 }
-
-export default CustomTextInput

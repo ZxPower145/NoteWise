@@ -1,14 +1,13 @@
-import {SafeAreaView} from "react-native-safe-area-context"
-import {ScrollView, View, Text, TouchableOpacity} from "react-native"
-import {router, useFocusEffect} from "expo-router"
+import React, { useState } from "react"
+import { ScrollView, View, Text, TouchableOpacity } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { router, useFocusEffect } from "expo-router"
+import { AgentDataType } from "@/constants/types/CustomTypes"
+import localStorage from "@/hooks/storage/local_storage/LocalStorage"
+import AgentElement from "@/components/buttons/AgentElement"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import AgentElement from "@/components/buttons/AgentElement";
-import {useEffect, useState} from "react";
-import * as React from "react";
-import {AgentDataType} from "@/constants/types/CustomTypes";
-import localStorage from "@/hooks/storage/local_storage/LocalStorage";
 
-const Index = () => {
+export default function Index() : React.ReactNode {
   const [agents, setAgents] = useState<AgentDataType[]>([])
   
   
@@ -54,12 +53,11 @@ const Index = () => {
               index={index}
               name={agent.name}
               system={agent.system}
-              refreshRate={agent.refreshRate} />
+              refreshRate={agent.refreshRate}
+            />
           ))
         }
       </ScrollView>
     </SafeAreaView>
   )
 }
-
-export default Index

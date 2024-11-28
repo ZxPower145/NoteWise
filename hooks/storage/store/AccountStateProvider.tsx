@@ -1,152 +1,79 @@
 import localStorage from "@/hooks/storage/local_storage/LocalStorage";
-import React, {createContext, useState} from "react";
-import {AccountInfo} from "@/constants/types/CustomTypes";
-import Toast from 'react-native-toast-message';
-import UseFetch from "@/hooks/fetch/useFetch";
-import endPoints from "@/constants/values/endPoints";
+import React, {createContext, useEffect, useState} from "react";
 import {router, useFocusEffect} from "expo-router";
+import * as AccountService from "@/services/AccountService"
+import { LoggedInAccount, SignUpAccount } from "@/constants/types/AccountTypes";
 
 interface AccountContextType {
-  account: AccountInfo,
-  isAuthenticated: boolean,
-  logIn: (account: AccountInfo) => void,
-  logOut: () => void,
-  getAppointments: () => void
+  account: LoggedInAccount
+  isAuthenticated: boolean | null
+  logIn: (account: LoggedInAccount) => void
+  logOut: () => void
+  signUp: (account: SignUpAccount) => void
+  resetPassword: (email: string) => void
 }
 
 export const AccountContext = createContext<AccountContextType | undefined>(undefined)
 
-export const AccountStateProvider = ({ children }) => {
-  const [account, setAccount] = useState<AccountInfo>(null)
+export const AccountStateProvider = ({ children }: { children: React.ReactNode } ) => {
+  const [account, setAccount] = useState<LoggedInAccount | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-  const fetcher = new UseFetch()
 
   useFocusEffect(React.useCallback(() => {
     const initializeAccountState = async () => {
-      const loggedInAccount = await localStorage.account.get()
-      if (loggedInAccount) setAccount(loggedInAccount)
+      const loggedInAccount: LoggedInAccount | null = await localStorage.account.get()
+      if (loggedInAccount?.password) {
+        setAccount(loggedInAccount)
+        await checkAuthentication(loggedInAccount)
+        setIsAuthenticated(true)
+      }
     }
     initializeAccountState()
   }, []))
   
-  const logIn = async (account: AccountInfo) => {
-    try {
-      const validated = validateEmail(account.email) && validatePassword(account.password || "")
-      
-      if (validated) {
-        const data = await fetcher
-          .setUrl(endPoints.login)
-          .setMethod('POST')
-          .setBody({
-            email: account.email,
-            password: account.password
-          })
-          .execute()
-        if (data.status === 200) {
-          await localStorage.account.logIn(account)
-          setAccount(account)
-          setIsAuthenticated(true)
-          router.push('account/dashboard')
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: "Nu am putut găsi niciun cont cu aceste informații",
-            text2: 'CONT'
-          })
-        }
-      }
-      return
-    } catch (error) {
-      console.error(error)
+  const logIn: (account: LoggedInAccount) => Promise<void> = async (account: LoggedInAccount): Promise<void> => {
+    const acc = await AccountService.logIn(account)
+    if (acc) {
+      setAccount(acc)
+      setIsAuthenticated(true)
+      router.replace("/account/dashboard")
+    }
+    return
+  }
+  
+  const signUp: (account: SignUpAccount) => Promise<void> = async (account: SignUpAccount): Promise<void> => {
+    const success = await AccountService.signUp(account)
+    if (success) {
+      router.replace("/account/activate")
     }
   }
   
   const logOut = async () => {
-    try {
+    const success = await AccountService.logOut()
+    if (success) {
       setAccount(null)
-      await localStorage.account.logOut()
       setIsAuthenticated(false)
-      router.push('account/login')
-    } catch (error) {
-      console.error(error)
+      router.replace('/')
     }
   }
   
-  const signUp = async () => {
-  
+  const resetPassword: (email: string) => Promise<void> = async (email: string) => {
+    await AccountService.resetPassword(email)
   }
   
-  const sendVerificationCode = async (email: string) => {
-    const validated = validateEmail(email)
-    if (validated) {
-      await fetcher
-        .setUrl(endPoints.passReset)
-        .setMethod("POST")
-        .addHeader("Accept-Language", "ro")
-        .setBody({email: email})
-        .execute()
-      router.replace('account/login')
-    }
-  }
-  
-  const getAppointments = async () => {
-    if (!account || !account.token) return
-    return await fetcher
-      .setUrl(endPoints.appointments)
-      .setMethod("GET")
-      .addHeader("Authorization", account.token)
-      .addHeader("Accept-Language", "ro")
-      .execute()
-  }
-  
-  const validateEmail = (email: string) => {
-    let raiseToast = false
-    let error = ""
-    if (!email) {
-      raiseToast = true
-      error = "Adresa de e-mail lipsește"
-    } else if (!email.includes("@")) {
-      raiseToast = true
-      error = "Introdu o adresă de e-mail validă"
-    }
-    if (raiseToast) {
-      Toast.show({
-        type: "error",
-        text1: error,
-        text2: "EMAIL",
-      })
-    }
-    return !raiseToast
-  }
-  
-  const validatePassword = (password: string) => {
-    let raiseToast = false
-    let error = ""
-    if (!password) {
-      raiseToast = true
-      error = "Parola lipsește"
-    } else if (password.length < 8) {
-      raiseToast = true
-      error = "Parola trebuie sa conțină cel putin 8 caractere"
-    }
-    if (raiseToast) {
-      Toast.show({
-        type: "error",
-        text1: error,
-        text2: "PAROLĂ",
-      })
-    }
-    return !raiseToast
+  const checkAuthentication: (account: LoggedInAccount) => Promise<void> =
+    async (account: LoggedInAccount): Promise<void> => {
+    await AccountService.checkAuthentication(account)
   }
   
   return (
     <AccountContext.Provider value={{
-      account,
+      account: account as LoggedInAccount,
       isAuthenticated,
       logIn,
       logOut,
-      sendVerificationCode,
-      getAppointments
+      signUp,
+      resetPassword
     }}>
       {children}
     </AccountContext.Provider>

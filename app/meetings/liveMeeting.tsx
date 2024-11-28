@@ -1,124 +1,75 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native"
-import {useContext, useEffect, useState} from "react"
-import { SafeAreaView } from "react-native-safe-area-context"
-import {router, useLocalSearchParams, useNavigation} from "expo-router"
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { useAzureSpeechStream } from "@/hooks/speech/useAzureSpeech";
+import React, {useContext, useEffect, useState} from "react"
+import {router, useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router"
 import { MeetingContext } from "@/hooks/storage/store/MeetingStateProvider";
-import { KEY, REGION } from "@env"
+import {View} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {Appbar, Card, Divider, IconButton, Text, useTheme} from "react-native-paper";
+import {MeetingDataType} from "@/constants/types/CustomTypes";
+import {useAzureSpeechStream} from "@/hooks/speech/useAzureSpeech";
+import {KEY, REGION} from "@env"
 
-const LiveMeeting = () => {
+export default function LiveMeeting(): React.ReactNode {
   const { title } = useLocalSearchParams()
-  const navigation = useNavigation()
+  const meetingContext = useContext(MeetingContext)
+  const theme = useTheme()
   
-  const {
-    meeting, initializeMeeting, removeAgent, updateTranscript
-  } = useContext(MeetingContext)
+  const { isRecording } = useAzureSpeechStream(KEY, REGION, "ro-RO")
   
-  const {
-    isRecording, transcript, startRecording, stopRecording
-  } = useAzureSpeechStream(KEY, REGION, "en-US")
+  const [meeting, setMeeting] = useState<MeetingDataType>({} as MeetingDataType)
   
   useEffect(() => {
-    const init = async () => {
-      await initializeMeeting(title as string)
-      navigation.setOptions({
-        title: title
-      })
+    if (meetingContext?.meeting) setMeeting(meetingContext?.meeting)
+  }, [meetingContext?.meeting]);
+  
+  useFocusEffect(React.useCallback(() => {
+    const initialize = async () => {
+      if (title && meetingContext) {
+        meetingContext.initializeMeeting(title as string)
+      }
     }
-    init()
-  }, [title])
-  
-  useEffect(() => {
-    // console.log(meeting.agents)
-  }, [meeting.agents])
-  
-  useEffect(() => {
-    if (transcript) {
-      updateTranscript(transcript)
-    }
-  }, [transcript])
+    initialize()
+  }, [title, meetingContext]))
   
   return (
-    <SafeAreaView className="h-full flex-1">
-      <ScrollView
-        className="flex-1"
-        scrollEnabled={!!meeting.agents}
-        contentContainerStyle={{
-          gap: 20,
-          justifyContent: 'space-between',
-          paddingBottom: 100
-        }}
-      >
-        {/* Main transcription */}
-        <View className="mx-auto px-4" style={{
-          width: '95%', height: 400, marginBottom: 30
-        }}>
-          <Text className="text-2xl font-semibold px-2">Live Transcript:</Text>
-          <View className="rounded-2xl border border-gray-300 h-full" style={{
-            backgroundColor: 'white',
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 7,
-            },
-            shadowOpacity: 40,
-            shadowRadius: 40,
-            elevation: 7,
-          }}>
-            <ScrollView className="h-full p-3">
-              <Text>{meeting.transcription}</Text>
-            </ScrollView>
-          </View>
-        </View>
-      
-        {/* Agent transcriptions */}
-        {meeting.agents && meeting.agents.length > 0 ? (
-          meeting.agents.map((agent, index) => (
-            <View key={index} className="mx-auto px-4" style={{
-              width: '95%', height: 400, marginBottom: 30
-            }}>
-              <Text className="text-2xl font-semibold px-2">{ agent.name }</Text>
-              <View className="rounded-2xl border border-gray-300 h-full" style={{
-                backgroundColor: 'white',
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 7,
-                },
-                shadowOpacity: 40,
-                shadowRadius: 40,
-                elevation: 7,
-              }}>
-                <ScrollView className="h-full p-3">
-                  <Text>{agent.transcription}</Text>
-                </ScrollView>
-              </View>
+    <View className="w-full h-full" style={{backgroundColor: theme.colors.background}}>
+      <Appbar.Header>
+        <Appbar.Content title={"Ședința Live"} />
+      </Appbar.Header>
+      <SafeAreaView className="w-full" style={{maxHeight: "85%", padding: 30}}>
+        <Card className="p-2">
+          <Card.Content>
+            <View className='justify-center items-center'>
+              <Text className="font-bold text-2xl">{meeting.title}</Text>
             </View>
-          ))
-        ) : null}
-      </ScrollView>
-    
-      <View className="flex flex-row justify-between p-5 border-t border-gray-300 bg-white">
-        <TouchableOpacity onPress={() => {
-          router.dismissAll()
-        }}>
-          <MaterialIcons name="cancel" size={44} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={
-          isRecording ? stopRecording : startRecording
-        }>
-          <MaterialIcons name={isRecording ? 'pause-circle' : 'not-started'} size={44} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {
-          router.push("meetings/modals/selectAgents")
-        }}>
-          <MaterialIcons name="add-circle" size={44} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-
+            <Divider/>
+            <Text>{meeting.transcript}</Text>
+            <Divider/>
+            <View className="flex-row items-center justify-evenly py-4">
+              <IconButton
+                icon='cancel'
+                size={25}
+                style={{backgroundColor: theme.colors.onBackground}}
+                iconColor={theme.colors.background}
+                onPress={async () => {}}
+              />
+              <IconButton
+                icon={isRecording ? 'pause-circle' : 'play-circle'}
+                size={25}
+                style={{backgroundColor: theme.colors.onBackground}}
+                iconColor={theme.colors.background}
+                onPress={async () => {}}
+              />
+              <IconButton
+                icon='microphone'
+                size={25}
+                style={{backgroundColor: theme.colors.onBackground}}
+                iconColor={theme.colors.background}
+                onPress={async () => {}}
+              />
+            </View>
+          </Card.Content>
+        </Card>
+      </SafeAreaView>
+    </View>
   )
 }
-
-export default LiveMeeting

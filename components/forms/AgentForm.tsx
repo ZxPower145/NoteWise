@@ -1,8 +1,9 @@
-import {ScrollView, TextInput, TouchableOpacity, View, Text} from "react-native";
-import {router, useNavigation} from "expo-router";
+import React from "react";
+import {ScrollView, StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {router, useFocusEffect, useNavigation} from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {useEffect} from "react";
+import NamedStyles = StyleSheet.NamedStyles;
 
 
 interface AgentFormDataType {
@@ -10,24 +11,23 @@ interface AgentFormDataType {
     name: { text: string; color: string };
     refreshRate: { text: string; color: string };
   };
-  name?: string;          // Individual field instead of full agent
-  system?: string;        // Individual field instead of full agent
-  refreshRate?: string;   // Individual field instead of full agent
+  name?: string;
+  system?: string;
+  refreshRate?: string;
   updateName: (text: string) => void;
   updateSystem: (text: string) => void;
   handleNumericInput: (text: string) => void;
   handleAction: () => void;
 }
 
-const AgentForm = (data: AgentFormDataType) => {
-  
+export default function AgentForm(data: AgentFormDataType): React.ReactNode {
   const navigation = useNavigation()
   
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
     navigation.addListener("blur", () => {
       clear()
     })
-  }, [])
+  }, []))
   
   const clear = () => {
     data.updateName("")
@@ -48,17 +48,7 @@ const AgentForm = (data: AgentFormDataType) => {
               placeholderTextColor={data.placeholder.name.color}
               verticalAlign={"middle"}
               autoCapitalize={"sentences"}
-              style={{
-                backgroundColor: '#d1d1d1',
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 5,
-                },
-                shadowOpacity: 40,
-                shadowRadius: 40,
-                elevation: 5,
-              }}
+              style={styles.shadow}
             />
           </View>
           <View className={"p-3 mb-3"}>
@@ -73,19 +63,7 @@ const AgentForm = (data: AgentFormDataType) => {
               numberOfLines={8}
               textAlignVertical={"top"}
               maxLength={255}
-              style={{
-                minHeight: 200,
-                maxHeight: 200,
-                backgroundColor: '#d1d1d1',
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 5,
-                },
-                shadowOpacity: 40,
-                shadowRadius: 40,
-                elevation: 5,
-              }}
+              style={[{minHeight: 200, maxHeight: 200}, styles.shadow]}
             />
           </View>
           <View className={"p-3 flex-row"}>
@@ -98,17 +76,7 @@ const AgentForm = (data: AgentFormDataType) => {
               placeholderTextColor={data.placeholder.refreshRate.color}
               textAlign={"center"}
               maxLength={2}
-              style={{
-                backgroundColor: '#d1d1d1',
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 5,
-                },
-                shadowOpacity: 40,
-                shadowRadius: 40,
-                elevation: 5,
-              }}
+              style={styles.shadow}
             />
           </View>
         </View>
@@ -128,4 +96,16 @@ const AgentForm = (data: AgentFormDataType) => {
   )
 }
 
-export default AgentForm
+const styles = StyleSheet.create<NamedStyles<any>>({
+  shadow: {
+    backgroundColor: '#d1d1d1',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 40,
+    shadowRadius: 40,
+    elevation: 5,
+  }
+})

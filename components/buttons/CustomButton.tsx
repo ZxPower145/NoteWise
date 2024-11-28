@@ -1,4 +1,7 @@
-import { TouchableOpacity, Text } from "react-native";
+import React from "react"
+import {TouchableOpacity, Text, View, StyleSheet, ViewStyle} from "react-native";
+import styles from "@/constants/values/styles"
+import NamedStyles = StyleSheet.NamedStyles;
 
 interface buttonOptions {
   text: string,
@@ -6,21 +9,21 @@ interface buttonOptions {
   txtClass ?: string,
   handlePress ?: () => void,
   isLoading ?: boolean,
+  styles ?: ViewStyle
 }
 
-const CustomButton = (data: buttonOptions) => {
+export default function CustomButton(data: buttonOptions): React.ReactNode  {
   return (
     <TouchableOpacity
-      className={`bg-hotpink rounded-xl min-h-[56px] justify-center items-center ${data.isLoading ? 'opacity-50' : ''}
+      className={`bg-hotpink rounded-xl justify-center items-center ${data.isLoading ? 'opacity-50' : ''}
       ${data.btnClass}`}
       onPress={data.handlePress}
       disabled={data.isLoading}
+      style={[{ paddingVertical: 15 }, styles.shadow, data.styles]}
     >
-      <Text className={`text-black font-bold text-xl ${data.txtClass}`}>
+      <Text className={`text-black font-bold text-2xl ${data.txtClass}`}>
         {data.text}
       </Text>
     </TouchableOpacity>
   )
 }
-
-export default CustomButton

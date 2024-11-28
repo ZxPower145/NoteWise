@@ -1,18 +1,16 @@
+import React from "react";
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar";
-import {VoiceStateProvider} from "@/hooks/storage/store/VoiceStateProvider";
-import {MeetingStateProvider} from "@/hooks/storage/store/MeetingStateProvider";
-
-const MeetingsLayout = () => {
+import { VoiceStateProvider } from "@/hooks/storage/store/VoiceStateProvider";
+import { MeetingStateProvider } from "@/hooks/storage/store/MeetingStateProvider";
+import {useTheme} from "react-native-paper";
+export default function MeetingsLayout(): React.ReactNode {
+  const theme = useTheme()
+  console.log(theme.colors.background)
   return (
     <MeetingStateProvider>
       <VoiceStateProvider>
-        <Stack screenOptions={{
-          headerTitleStyle: {
-            fontWeight: 'bold'
-          }
-        }}>
-          
+        <Stack>
           <Stack.Screen name="index" options={{
             headerShown: false
           }}/>
@@ -22,15 +20,12 @@ const MeetingsLayout = () => {
             headerShown: false
           }}/>
           
-          
           <Stack.Screen name="add" options={{
-            headerShown: true,
-            title: 'Start New Meeting'
+            headerShown: false
           }}/>
           
           <Stack.Screen name="liveMeeting" options={{
-            headerShown: true,
-            title: 'Transcript Live'
+            headerShown: false,
           }}/>
           
           <Stack.Screen name="modals/selectAgents" options={{
@@ -41,12 +36,8 @@ const MeetingsLayout = () => {
           <Stack.Screen name="view/[title]" options={{
             headerShown: true,
           }}/>
-          
         </Stack>
-        <StatusBar backgroundColor="black" style="light" />
       </VoiceStateProvider>
     </MeetingStateProvider>
   )
 }
-
-export default MeetingsLayout

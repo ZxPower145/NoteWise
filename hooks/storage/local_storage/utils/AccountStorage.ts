@@ -1,38 +1,83 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AccountInfo } from '@/constants/types/CustomTypes'
-
+import { LoggedInAccount } from "@/constants/types/AccountTypes";
+import CryptoJS from 'crypto-js';
+import { ENCRYPTIONKEY } from "@env";
 
 class AccountStorage {
-  constructor() {
-    this.initializeStorage()
+  encryptData(data: LoggedInAccount): string {
+    const dataStr: string = JSON.stringify(data);
+    // Use CBC mode with a static IV to avoid random number generation
+    const key = CryptoJS.enc.Utf8.parse(ENCRYPTIONKEY.slice(0, 32)); // Use first 32 chars as key
+    const iv = CryptoJS.enc.Utf8.parse(ENCRYPTIONKEY.slice(0, 16));  // Use first 16 chars as IV
+    
+    const encrypted = CryptoJS.AES.encrypt(dataStr, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7
+    });
+    
+    return encrypted.toString();
   }
   
-  async initializeStorage() {
-    const account = await AsyncStorage.getItem('account')
-    if (!account) {
-      await AsyncStorage.setItem('account', JSON.stringify({} as AccountInfo))
+  decryptData(encryptedData: string): LoggedInAccount | null {
+    try {
+      if (!encryptedData) {
+        return null
+      }
+      // Use the same key and IV for decryption
+      const key = CryptoJS.enc.Utf8.parse(ENCRYPTIONKEY.slice(0, 32));
+      const iv = CryptoJS.enc.Utf8.parse(ENCRYPTIONKEY.slice(0, 16));
+      
+      const decrypted = CryptoJS.AES.decrypt(encryptedData, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      
+      const decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
+      
+      if (!decryptedStr) {
+        return null
+      }
+      
+      return JSON.parse(decryptedStr);
+    } catch (error) {
+      console.error('Decryption error:', error);
+      return null
     }
-    return
   }
   
-  async logIn(data: AccountInfo) {
-    await AsyncStorage.setItem('account', JSON.stringify({
-      email: data.email,
-      token: data.token
-    }))
+  async logIn(data: LoggedInAccount): Promise<void> {
+    try {
+      const encryptedData = this.encryptData(data);
+      await AsyncStorage.setItem('account', encryptedData);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   }
   
-  async update(field: string, value: string) {
-  
+  async logOut(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem('account');
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   }
   
-  async logOut() {
-    await AsyncStorage.removeItem('account')
-  }
-  
-  async get() {
-    const obj = await AsyncStorage.getItem('account') || ""
-    return obj.length > 0 ? JSON.parse(obj) : null
+  async get(): Promise<LoggedInAccount | null> {
+    try {
+      const encryptedData: string | null = await AsyncStorage.getItem('account');
+      if (!encryptedData) {
+        return null
+      }
+      return this.decryptData(encryptedData);
+    } catch (error) {
+      console.error('Get account error:', error);
+      return null
+    }
   }
 }
-export default AccountStorage
+
+export default AccountStorage;

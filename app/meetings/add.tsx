@@ -1,13 +1,15 @@
-import {TouchableOpacity, Text, View, ScrollView} from "react-native"
-import { useState } from "react"
+import React, { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router } from "expo-router"
 import { MeetingDataType } from "@/constants/types/CustomTypes"
-import CustomTextInput from "@/components/inputs/CustomTextInput"
-import FontAwesome from '@expo/vector-icons/FontAwesome'
 import localStorage from "@/hooks/storage/local_storage/LocalStorage"
+import { Response } from "@/constants/types/CustomTypes"
+import {Appbar, Button, IconButton, Text, TextInput, useTheme} from "react-native-paper";
+import {View} from "react-native";
+import Toast from "react-native-toast-message";
 
-const Add = () => {
+export default function Add(): React.ReactNode {
+  const theme = useTheme()
   const date = new Date()
   const localDate = date.toLocaleDateString("ro-RO")
   const hour = date.getHours()
@@ -22,82 +24,97 @@ const Add = () => {
     agents: []
   })
   
-  const [placeholder, setPlaceholder] = useState({
+  const [placeholder, setPlaceholder] = useState<any>({
     text: 'Meeting Title',
     color: 'black'
   })
   
-  const updateTitle = (newTitle) => {
-    setMeetingData((prevData) => ({
+  const updateTitle = (newTitle: string) => {
+    setMeetingData((prevData: MeetingDataType) => ({
       ...prevData,
       title: newTitle
     }))
   }
   
-  const updateInitialDetails = (newDetails) => {
-    setMeetingData((prevData) => ({
+  const updateInitialDetails = (newDetails: string) => {
+    setMeetingData((prevData: MeetingDataType) => ({
       ...prevData,
       initialDetails: newDetails
     }))
   }
   
-  const saveData = async (data: MeetingDataType) => {
-    let response = await localStorage.meetings.add(data)
-    if (response.status === 400 && response.error) {
-      updateTitle("")
+  const saveData = async (data: MeetingDataType) : Promise<void> => {
+    try {
+      let response: Response = await localStorage.meetings.add(data)
+      if (response.status === 200) {
+        router.push({
+          pathname: '/meetings/liveMeeting',
+          params: {
+            title: meetingData.title
+          }
+        })
+      }
+    } catch (error: any) {
       setPlaceholder({
-        text: response.error,
+        text: error.message,
         color: "red"
-      })
-    } else {
-      router.push({
-        pathname: '/meetings/liveMeeting',
-        params: {
-          title: meetingData.title
-        }
       })
     }
   }
   
   return (
-    <SafeAreaView className="h-full px-4">
-      <ScrollView contentContainerStyle={{width: '100%', flexGrow: 1}}>
-        <View className="flex justify-start gap-20 align-center">
-          <CustomTextInput
-            placeholder={placeholder.text}
-            placeholderTextColor={placeholder.color}
-            value={meetingData.title}
-            onChangeText={updateTitle}
-          />
-          
-          <CustomTextInput
-            placeholder={'Initial Details'}
-            overrideClasses={'w-full rounded-2xl border-b border-gray-300 text-end p-2 max-h-[50px]'}
-            isMultiline={true}
-            maxLength={255}
-            noOfLines={3}
-            value={meetingData.initialDetails}
-            onChangeText={updateInitialDetails}
-          />
-          <View className="mt-6">
-            <Text className="px-2 text-lg mb-2">
-              Or just start recording and begin with the initial details:
-            </Text>
-            <TouchableOpacity
-              className="rounded-3xl p-2 w-[100px] mx-auto"
-              onPress={async () => {
-                await saveData(meetingData)
-              }}>
-              <FontAwesome className="mx-auto"
-                name='microphone'
-                size={64}
-                color="#8867f3" />
-            </TouchableOpacity>
+    <>
+      <View style={{width: '100%', position: 'absolute', zIndex: 999}}>
+        <Toast />
+      </View>
+      <View className="w-full h-full">
+        <Appbar.Header style={{backgroundColor: theme.colors.background}}>
+          <Appbar.BackAction onPress={() => {router.back()}} />
+          <Appbar.Content title={"Adaugă o ședința"} />
+        </Appbar.Header>
+        <SafeAreaView style={{height: '80%', justifyContent: 'flex-start', gap: 40}}>
+          <View style={{paddingHorizontal: 30, gap: 40}}>
+            <TextInput
+              mode="outlined"
+              outlineColor={theme.colors.secondary}
+              activeOutlineColor={theme.colors.secondary}
+              label="Titlu"
+              selectionColor={'lightblue'}
+              cursorColor={"lightblue"}
+              onChangeText={(text: string) => updateTitle(text)}
+              left={<TextInput.Icon icon={"format-title"}/>}
+            />
+            <View>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Detalii inițiale"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                multiline
+                numberOfLines={8}
+                onChangeText={(text: string) => updateInitialDetails(text)}
+                left={<TextInput.Icon icon={"format-title"}/>}
+              />
+              <Text className="px-2 text-lg">
+                Sau începe cu detaliile inițiale în ședința:
+              </Text>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View className="w-full items-center justify-center">
+            <IconButton
+              icon='microphone'
+              size={50}
+              style={{backgroundColor: theme.colors.onBackground}}
+              iconColor={theme.colors.background}
+              onPress={async () =>
+                await saveData(meetingData)
+              }
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </>
   )
 }
-
-export default Add

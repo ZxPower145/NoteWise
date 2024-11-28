@@ -1,186 +1,251 @@
-import {SafeAreaView} from "react-native-safe-area-context";
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import FormTextInput from "@/components/inputs/FormTextInput";
-import React, {useEffect, useState} from "react";
-import Fontisto from "@expo/vector-icons/Fontisto";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import CountryDropDown from "@/components/inputs/CountryDropDown";
-import {getCountryDataList, getEmojiFlag} from "countries-list";
+import React, {useContext, useState} from "react";
+import { SignUpAccount } from "@/constants/types/AccountTypes";
+import { AccountContext } from "@/hooks/storage/store/AccountStateProvider"
 
-const Signup = () => {
-  const [email, setEmail] = useState<string>("")
+import {Appbar, Button, Checkbox, Modal, Portal, Text, TextInput, useTheme} from "react-native-paper";
+import {router} from "expo-router";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {ScrollView, TouchableOpacity, View} from "react-native";
+import TAncC from "@/components/cards/TAncC";
+import * as Linking from 'expo-linking';
+import endPoints from "@/constants/values/endPoints";
+import Toast from "react-native-toast-message";
+
+export default function Signup(): React.ReactNode  {
+  const [account, setAccount] = useState<SignUpAccount>({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    country: '',
+    city: '',
+    phone: '',
+    confirmPassword: '',
+  })
+  const theme = useTheme()
+  const accountContext = useContext(AccountContext)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false)
+  const [showTerms, setShowTerms] = useState<boolean>(false)
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false)
   
-  const [password1, setPassword1] = useState<string>("")
-  const [showPassword1, setShowPassword1] = useState<boolean>(false)
-  
-  const [password2, setPassword2] = useState<string>("")
-  const [showPassword2, setShowPassword2] = useState<boolean>(false)
-  
-  const [firstName, setFirstName] = useState<string>("")
-  const [lastName, setLastName] = useState<string>("")
-  
-  const [country, setCountry] = useState<string>("")
-  const [city, setCity] = useState<string>("")
-  
-  const [phoneNumberPrefix, setPhoneNumberPrefix] = useState<string>("")
-  const [phoneNumber, setPhoneNumber] = useState<string>("")
-  
-  const [countryList, setCountryList] = useState([])
-  const countries = getCountryDataList()
-  
-  useEffect(() => {
-    const formattedCountries = countries.map(country => ({
-      countryLabel: `${getEmojiFlag(country.iso2)} ${country.iso2 || country.iso3}`,
-      countryName: country.name,
-      countryPrefix: country.phone
-    }));
-  
-    // Single state update with all data
-    setCountryList(formattedCountries);
-  }, [])
-  
+  const updateAccount = (key: keyof SignUpAccount, value: string) => {
+    setAccount((prevState: SignUpAccount) : SignUpAccount => ({
+      ...prevState,
+      [key]: value
+    }))
+  }
   
   return (
-    <SafeAreaView className="w-full h-full">
-      <View style={{height: '20%', alignItems: 'center', justifyContent: 'center'}}>
-        <Text className="font-semibold text-3xl text-center">
-          Creează un cont nou
-        </Text>
+    <>
+      <View style={{width: '100%', position: 'absolute', zIndex: 999}}>
+        <Toast />
       </View>
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContainer}
-        style={{ borderTopRightRadius: 50, borderTopLeftRadius: 50 }}
-        className="bg-hotpink">
-        <View style={{gap: 20}}>
-          <Text
-            className='text-2xl font-semibold text-center border-b py-2'
-            style={{color: 'white', borderColor: 'white'}}>
-            - Creeați un cont nou -
-          </Text>
-          <FormTextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder={"Introduceți adresa de e-mail"}
-            textInputWidth={'90%'}
-            beforeIcon={<Fontisto name="email" size={24} color="gray"/>}
-          />
-  
-          <FormTextInput
-            value={phoneNumberPrefix}
-            onChangeText={setPhoneNumber}
-            placeholder={"Număr de telefon"}
-            textInputWidth={'80%'}
-            beforeIcon={
-              <CountryDropDown
-                onSelect={setPhoneNumberPrefix}
-                containerWidth={'20%'}
+      <View className={'w-full h-full'} style={{backgroundColor: theme.colors.background}}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => {router.replace("")}} />
+          <Appbar.Content title={"Înregistrează-te"} />
+        </Appbar.Header>
+        <SafeAreaView
+          className={"align-center justify-between w-full"}
+          style={{height: '85%', paddingHorizontal: 30}}>
+          <Portal>
+              <Modal
+                visible={showTerms}
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+                contentContainerStyle={{
+                  backgroundColor: theme.colors.background,
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                  width: '85%',
+                  height: '70%',
+                  padding: 20
+              }}
+                onDismiss={() => {setShowTerms(false)}
+              }>
+                <TAncC />
+                <View className={'flex-row w-full'}
+                      style={{paddingVertical: 10, alignItems: 'center', justifyContent: 'space-evenly'}}
+                >
+                  <Button mode={"elevated"}
+                          onPress={() => {
+                            Linking.openURL(endPoints.termsAndConditions)
+                          }}
+                          style={{backgroundColor: 'blue'}}
+                          compact={true}
+                          textColor={'white'}
+                  >
+                    DETALII
+                  </Button>
+                  <Button mode={"elevated"}
+                          onPress={() => {
+                            setTermsAccepted(false)
+                            setShowTerms(false)
+                          }}
+                          style={{backgroundColor: 'red'}}
+                          compact={true}
+                          textColor={'white'}
+                  >
+                    REFUZ
+                  </Button>
+                  <Button mode={"elevated"}
+                          onPress={() => {
+                            setTermsAccepted(true)
+                            setShowTerms(false)
+                          }}
+                          style={{backgroundColor: 'green'}}
+                          textColor={'white'}
+                          compact={true}
+                  >
+                    ACCEPT
+                  </Button>
+                  
+                </View>
+              </Modal>
+          </Portal>
+          <ScrollView contentContainerStyle={{alignItems: 'center', paddingBottom: 50, gap: 20}}>
+            <View className='w-full'>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Adresa de email"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('email', text)}
+                left={<TextInput.Icon icon={"email"}/>}
               />
-            }
-          />
+            </View>
+            
+            <View className='flex-row w-full' style={{alignItems: 'center', justifyContent: 'space-between'}}>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Nume"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('lastName', text)}
+                left={<TextInput.Icon icon={"account"}/>}
+                style={{width: '48%'}}
+              />
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Prenume"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('firstName', text)}
+                left={<TextInput.Icon icon={"account"}/>}
+                style={{width: '48%'}}
+              />
+            </View>
+            
+            <View className='w-full'>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Numar de telefon"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('phone', text)}
+                left={<TextInput.Icon icon={"phone"}/>}
+              />
+            </View>
+            
+            <View className='w-full'>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Parola"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('password', text)}
+                left={<TextInput.Icon icon={"lock"}/>}
+                secureTextEntry={!showPassword}
+                right={
+                <TextInput.Icon
+                  icon={showPassword ? 'eye-off' : 'eye'}
+                  onPress={() => setShowPassword(!showPassword)}
+                />}
+              />
+            </View>
+            
+            <View className='w-full'>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Confirma parola"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('confirmPassword', text)}
+                left={<TextInput.Icon icon={"lock"}/>}
+                secureTextEntry={!showPasswordConfirmation}
+                right={
+                <TextInput.Icon
+                  icon={showPasswordConfirmation ? 'eye-off' : 'eye'}
+                  onPress={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                />}
+              />
+            </View>
+            
+            <View className='flex-row w-full' style={{alignItems: 'center', justifyContent: 'space-between'}}>
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Tara"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('country', text)}
+                left={<TextInput.Icon icon={"google-maps"}/>}
+                style={{width: '48%'}}
+              />
+              <TextInput
+                mode="outlined"
+                outlineColor={theme.colors.secondary}
+                activeOutlineColor={theme.colors.secondary}
+                label="Oras"
+                selectionColor={'lightblue'}
+                cursorColor={"lightblue"}
+                onChangeText={(text: string) => updateAccount('city', text)}
+                left={<TextInput.Icon icon={"google-maps"}/>}
+                style={{width: '48%'}}
+              />
+            </View>
           
-          <View className="flex-row" style={{justifyContent: 'space-between'}}>
-            <FormTextInput
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder={"Nume"}
-              beforeIcon={<MaterialIcons name="person-outline" size={24} color="gray" />}
-              viewWidth={'48%'}
-            />
-            <FormTextInput
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder={"Prenume"}
-              viewWidth={'48%'}
-              beforeIcon={<MaterialIcons name="person-outline" size={24} color="gray" />}
-            />
-          
+            <View className='w-full flex-row items-center'>
+              <Text className='text-xl'>Acceptă </Text>
+              <TouchableOpacity onPress={() => {setShowTerms(true)}}>
+                <Text className="text-xl" style={{color: theme.colors.primary}}>
+                  termenii și condițiile
+                </Text>
+              </TouchableOpacity>
+              <Checkbox status={termsAccepted ? 'checked' : 'unchecked'}
+                        onPress={() => setTermsAccepted(!termsAccepted)} />
+            </View>
+          </ScrollView>
+          <View className="w-full">
+            <Button
+              mode={"elevated"}
+              style={{backgroundColor: theme.colors.onBackground}}
+              textColor={theme.colors.background}
+              onPress={() => {
+                if (termsAccepted)  accountContext?.signUp(account)
+                else alert('Trebuie să accepți termenii și condițiile')
+              }}>
+              Înregistrează-te
+            </Button>
           </View>
-          
-          <FormTextInput
-            beforeIcon={<MaterialIcons name="lock-outline" size={24} color="gray"/>}
-            value={password1}
-            onChangeText={setPassword1}
-            placeholder={'Introduceți parola'}
-            secureText={!showPassword1}
-            textInputWidth={'80%'}
-            afterIcon={<TouchableOpacity
-              className="ml-auto"
-              onPress={() => setShowPassword1(!showPassword1)}
-              style={{width: '10%'}}
-            >
-              <FontAwesome6 name={`eye${showPassword1 ? '-slash' : ''}`} size={24} color="gray" />
-            </TouchableOpacity>}
-          />
-          
-          <FormTextInput
-            beforeIcon={<MaterialIcons name="lock-outline" size={24} color="gray"/>}
-            value={password2}
-            onChangeText={setPassword2}
-            placeholder={'Confirmați parola'}
-            secureText={!showPassword2}
-            textInputWidth={'80%'}
-            afterIcon={<TouchableOpacity
-              className="ml-auto"
-              onPress={() => setShowPassword2(!showPassword2)}
-              style={{width: '10%'}}
-            >
-              <FontAwesome6 name={`eye${showPassword2 ? '-slash' : ''}`} size={24} color="gray" />
-            </TouchableOpacity>}
-          />
-  
-          <View className="flex-row" style={{justifyContent: 'space-between'}}>
-            <FormTextInput
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder={"Țară"}
-              beforeIcon={<MaterialIcons name="flag" size={24} color="gray"/>}
-              viewWidth={'48%'}
-            />
-            <FormTextInput
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder={"Oraș"}
-              viewWidth={'48%'}
-              beforeIcon={<MaterialIcons name="place" size={24} color="gray"/>}
-            />
-  
-          </View>
-        </View>
-      </ScrollView>
-      
-      <TouchableOpacity
-        className="py-2"
-        style={styles.logInBtn}
-        onPress={() => {}}>
-        <Text className="text-center font-bold text-2xl" style={{color:'white'}}>
-          Înregistrează-te
-        </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        </SafeAreaView>
+      </View>
+    </>
   )
 }
-
-const styles = StyleSheet.create({
-  scrollViewContainer: {
-    height: '100%',
-    width: '100%',
-    alignContent: "center",
-    paddingHorizontal: 30,
-    paddingVertical: 20,
-    gap: 15
-  },
-  logInBtn: {
-    backgroundColor: '#33b86d',
-    shadowColor:"#33b86d",
-    shadowOffset: {
-      width: -4,
-      height: 4,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 8
-  }
-})
-
-export default Signup

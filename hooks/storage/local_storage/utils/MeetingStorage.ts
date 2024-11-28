@@ -1,16 +1,16 @@
 import BasicStorage from "@/hooks/storage/local_storage/utils/BasicStorage";
+import { MeetingDataType } from "@/constants/types/CustomTypes";
 
-class MeetingStorage extends BasicStorage{
+export default class MeetingStorage extends BasicStorage<MeetingDataType>{
   constructor() {
     super(
-      'meetings',
-      'title',
-      "The meeting title is required.",
-      "You already have a meeting with this title.",
-      "There was an error finding your meeting.",
-    );
+      {
+        storageKey: 'meetings',
+        primaryKeyPropertyName: 'title',
+        noPrimaryKeyError: "The meeting title is required.",
+        notUniqueError: "You already have a meeting with this title.",
+        notFoundError: "There was an error finding your meeting.",
+      }
+    )
   }
-  
 }
-
-export default MeetingStorage

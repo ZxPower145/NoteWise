@@ -22,9 +22,24 @@ interface LocalStorageResponseType {
 
 interface AccountInfo {
   email: string
+  phoneNumber?: string
+  firstName?: string
+  lastName?: string
+  country?: string
+  city?: string
   password?: string
   token?: string
-  name?: string
 }
 
-export { MeetingDataType, AgentDataType, LocalStorageResponseType, AccountInfo }
+interface Response {
+  status: number
+  message?: string
+}
+
+export {
+  MeetingDataType,
+  AgentDataType,
+  LocalStorageResponseType,
+  AccountInfo,
+  Response
+}

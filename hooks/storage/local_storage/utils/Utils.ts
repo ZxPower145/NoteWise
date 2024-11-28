@@ -1,6 +1,6 @@
 import { LocalStorageResponseType } from "@/constants/types/CustomTypes";
 
-class Utils {
+export default class Utils {
   static generateResponse(status: number, error?: string) : LocalStorageResponseType {
     return  {
       status,
@@ -11,5 +11,3 @@ class Utils {
     return text.toLowerCase().split(' ').join('')
   }
 }
-
-export default Utils

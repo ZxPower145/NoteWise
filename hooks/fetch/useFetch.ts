@@ -66,14 +66,11 @@ class UseFetch {
   // Execute the fetch request
   async execute(): Promise<any> {
     try {
-      const response = await fetch(this.config.url, {
+      return await fetch(this.config.url, {
         method: this.config.method,
         headers: this.config.headers,
         body: this.config.body
-      });
-      
-      return response
-      
+      })
     } catch (error) {
       console.error('Fetch error:', error);
       throw error;

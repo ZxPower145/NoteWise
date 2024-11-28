@@ -12,20 +12,21 @@ interface MeetingContextType {
 
 export const MeetingContext = createContext<MeetingContextType | undefined>(undefined)
 
-export const MeetingStateProvider = ({ children }) => {
-  const [meeting, setMeeting] = useState<MeetingDataType>({
-    agents: [],
-    date: "",
-    initialDetails: "",
-    startTime: "",
-    title: "",
-    transcript: ""
-  })
+export const MeetingStateProvider = ({ children }: any) => {
+  const [meeting, setMeeting] = useState<MeetingDataType>({} as MeetingDataType)
   const [selectedAgents, setSelectedAgents] = useState<AgentDataType[]>([])
   
   const initializeMeeting = async (title: string) => {
     const localMeeting = await localStorage.meetings.get(title)
-    setMeeting(localMeeting)
+    if (localMeeting) {
+      setMeeting(localMeeting);
+    } else {
+      throw new Error("There was a problem fetching the meeting")
+    }
+  }
+  
+  const addMeeting = async (meeting: MeetingDataType) => {
+  
   }
   
   const addAgent = (agent: AgentDataType) => {
