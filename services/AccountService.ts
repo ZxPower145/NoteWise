@@ -1,6 +1,6 @@
 import { LoggedInAccount, SignUpAccount } from "@/constants/types/AccountTypes";
 import localStorage from "@/hooks/storage/local_storage/LocalStorage"
-import UseFetch from "@/hooks/fetch/useFetch"
+import UseFetch from "@/hooks/utils/useFetch"
 import endPoints from "@/constants/values/endPoints"
 import Toast from "react-native-toast-message";
 import * as Validator from "@/services/ValidatorService"
@@ -95,6 +95,7 @@ export const checkAuthentication: (account: LoggedInAccount) => Promise<void> =
       .setUrl(endPoints.checkAccount)
       .setMethod("GET")
       .addHeader("Authorization", account.token)
+      .setBody("")
       .execute()
     if (response.status !== 200) {
       await logIn(account)

@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LoggedInAccount } from "@/constants/types/AccountTypes";
 import CryptoJS from 'crypto-js';
+// @ts-ignore
 import { ENCRYPTIONKEY } from "@env";
 
 class AccountStorage {

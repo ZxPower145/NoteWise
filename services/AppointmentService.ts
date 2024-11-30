@@ -1,4 +1,4 @@
-import UseFetch from "@/hooks/fetch/useFetch";
+import UseFetch from "@/hooks/utils/useFetch";
 import endPoints from "@/constants/values/endPoints";
 import { Patient, RawAppointment, Appointment } from "@/constants/types/AppointmentTypes";
 

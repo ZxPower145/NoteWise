@@ -1,62 +1,51 @@
-import {ScrollView, Text, TouchableOpacity, View} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"
-import React, {useContext, useEffect, useState} from "react";
-import {AccountContext} from "@/hooks/storage/store/AccountStateProvider";
-import {router, useFocusEffect} from "expo-router";
-import AppointmentCard from "@/components/cards/AppointmentCard";
+import React from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { getAppointments } from "@/services/AppointmentService";
 import { Appointment } from "@/constants/types/AppointmentTypes";
-import {Appbar} from "react-native-paper";
+import {Appbar, MD3Theme, Text, useTheme} from "react-native-paper";
+import { useAccount } from "@/hooks/storage/store/AccountStateProvider";
+import Loading from "@/components/Loading";
 
-export default function Dashboard (): React.ReactNode  {
-  const accountContext = useContext(AccountContext)
-  const [appointments, setAppointments] = useState<Array<Appointment>>([])
-  const [loading, setIsLoading] = useState<boolean>(true)
+export default function Dashboard(): React.ReactNode {
+  const [appointments, setAppointments] = React.useState<Array<Appointment>>([]);
+  const [loading, setLoading] = React.useState(true);
+  const { account } = useAccount();
+  const theme: MD3Theme = useTheme();
   
-  useFocusEffect(React.useCallback(() => {
-    if (!accountContext?.isAuthenticated) {
-      setIsLoading(true)
-      router.replace('/')
-    }
-  }, [accountContext?.isAuthenticated]))
+  React.useEffect((): void => {
+    const fetchAppointments: () => void = async (): Promise<void> => {
+      if (!account?.token) return;
+      const fetchedAppointments: Appointment[] = await getAppointments(account.token);
+      setAppointments(fetchedAppointments);
+      setLoading(false);
+    };
+    
+    fetchAppointments();
+  }, [account?.token]);
   
-  useEffect(() => {
-    setIsLoading(true)
-    const handleAppointments:() => void = async (): Promise<void> => {
-      const fetchedAppointments = await getAppointments(accountContext?.account?.token || "")
-      setAppointments(fetchedAppointments)
-    }
-    handleAppointments()
-    if (appointments) setIsLoading(false)
-  }, [accountContext?.account]);
+  if (!account) return (
+    <View className="h-full w-full justify-center items-center" style={{backgroundColor: theme.colors.background}}>
+      <Text className="text-2xl" style={{color: theme.colors.onBackground}}>
+        Trebuie să fii conectat pentru a vizualiza programările curente.
+      </Text>
+    </View>
+  );
   
-  if (loading) return null
+  if (loading) return <Loading />;
   
   return (
-    <View>
+    <View className="w-full h-full" style={{backgroundColor: theme.colors.background}}>
       <Appbar.Header>
-        <Appbar.Content title={"Programări"} />
+        <Appbar.Content title="Programări"/>
       </Appbar.Header>
-      <SafeAreaView className="w-full" style={{maxHeight: '85%'}}>
-        <ScrollView contentContainerStyle={{ gap: 20 }}>
-          {
-            appointments.map((appointment, index) => {
-              return (
-                <AppointmentCard
-                  key={index}
-                  name={appointment.patientName}
-                  date={appointment.date}
-                  startTime={appointment.startTime}
-                  endTime={appointment.endTime}
-                  issues={appointment.patientIssues}
-                  appointmentType={appointment.type}
-                  contact={appointment.patientEmail}
-                />
-              )
-            })
-          }
+      <SafeAreaView className="w-full">
+        <ScrollView contentContainerStyle={{ justifyContent: "space-evenly" }}>
+          {appointments.map((appointment, index) => (
+            <Text key={index}>{appointment.patientEmail}</Text>
+          ))}
         </ScrollView>
       </SafeAreaView>
     </View>
-  )
+  );
 }

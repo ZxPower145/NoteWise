@@ -56,9 +56,8 @@ export default class BasicStorage<T extends MeetingDataType | AgentDataType> {
       if (itemToDelete) {
         const newArr: Array<T> = this.storageItems.filter(item => {
           return (
-            Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) !==
+            Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName] as string) !==
             Utils.toLowerNoSpaces(primaryKey)
-            || null
           )
         })
         if (newArr) {
@@ -67,7 +66,7 @@ export default class BasicStorage<T extends MeetingDataType | AgentDataType> {
         }
       }
     } catch (error) {
-      console.error(`There was a problem deleting the item ${primaryKey}`)
+    
     }
   }
   
@@ -92,7 +91,7 @@ export default class BasicStorage<T extends MeetingDataType | AgentDataType> {
     try {
       return new Promise<T | null>(
         (resolve, reject) => {
-        const item: T = this.storageItems.find(item => item[this.primaryKeyPropertyName] === primaryKey);
+        const item: T | undefined = this.storageItems.find(item => item[this.primaryKeyPropertyName] === primaryKey);
         if (item) {
           resolve(item);
         } else {
@@ -171,7 +170,7 @@ export default class BasicStorage<T extends MeetingDataType | AgentDataType> {
   
   getIndex(primaryKey: string) {
     return this.storageItems.findIndex(
-      item => Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) ===
+      item => Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName] as string) ===
         Utils.toLowerNoSpaces(primaryKey)
     )
   }
@@ -179,7 +178,7 @@ export default class BasicStorage<T extends MeetingDataType | AgentDataType> {
   private async isPrimaryKeyUnique(primaryKey: string): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       const itemWithGivenPrimaryKey = this.storageItems.find(item => {
-        return Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName]) === Utils.toLowerNoSpaces(primaryKey)
+        return Utils.toLowerNoSpaces(item[this.primaryKeyPropertyName] as string) === Utils.toLowerNoSpaces(primaryKey)
       })
       resolve(!itemWithGivenPrimaryKey)
     })

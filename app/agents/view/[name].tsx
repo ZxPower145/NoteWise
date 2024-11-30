@@ -1,77 +1,17 @@
-import React, { useContext, useEffect, useState } from "react"
-import {router, useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router"
-import { ActivityIndicator, Text, View } from "react-native";
-import { AgentContext } from "@/hooks/storage/store/AgentStateProvider";
-import localStorage from "@/hooks/storage/local_storage/LocalStorage";
-import AgentForm from "@/components/forms/AgentForm";
+import React from "react"
+import { Text, View } from "react-native";
+import Loading from "@/components/Loading";
 
 export default function AgentDetails(): React.ReactNode {
-  const { name, index } = useLocalSearchParams()
-  const { agent, setAgent, updateName, updateSystem, updateRefreshRate, placeholder } = useContext(AgentContext)
-  
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-  
-  useFocusEffect(React.useCallback(() => {
-    useNavigation().setOptions({
-      title: name
-    })
-    
-    const initializeAgent = async () => {
-      if (!Array.isArray(name)) {
-        try {
-          setIsLoading(true)
-          setError(null)
-          
-          const localAgent = await localStorage.agents.get(name)
-          if (localAgent && localAgent.length > 0) {
-            const retrievedAgent = localAgent[0]
-            setAgent({
-              name: retrievedAgent.name,
-              system: retrievedAgent.system,
-              refreshRate: retrievedAgent.refreshRate,
-              transcript: retrievedAgent.transcript || ''
-            })
-          } else {
-            setError("Agent not found")
-          }
-        } catch (error) {
-          console.error("Error loading agent:", error)
-          setError("Error loading agent")
-        } finally {
-          setIsLoading(false)
-        }
-      }
-    }
-    
-    initializeAgent()
-    
-  }, [name, setAgent]))
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [error, setError] = React.useState<string | null>(null)
   
   const handleNumericInput = (text: string) => {
     const numValue = text.replace(/[^0-9]/g, '')
-    updateRefreshRate(numValue)
-  }
-  
-  const handleUpdateAgent = async () => {
-    try {
-      const response = await localStorage.agents.update(Number(index), agent)
-      if (response.status === 200) {
-        router.dismissAll()
-      } else {
-        console.error(response.error)
-      }
-    } catch (error) {
-      console.error(error)
-    }
   }
   
   if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
-    )
+    return <Loading/>
   }
   
   if (error) {
@@ -81,17 +21,4 @@ export default function AgentDetails(): React.ReactNode {
       </View>
     )
   }
-  
-  return (
-    <AgentForm
-      name={agent.name}
-      system={agent.system}
-      refreshRate={agent.refreshRate}
-      placeholder={placeholder}
-      updateName={updateName}
-      updateSystem={updateSystem}
-      handleNumericInput={handleNumericInput}
-      handleAction={handleUpdateAgent}
-    />
-  )
 }

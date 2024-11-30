@@ -1,70 +1,63 @@
-import React, {useContext, useEffect, useState} from "react"
-import {router, useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router"
-import { MeetingContext } from "@/hooks/storage/store/MeetingStateProvider";
-import {View} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {Appbar, Card, Divider, IconButton, Text, useTheme} from "react-native-paper";
-import {MeetingDataType} from "@/constants/types/CustomTypes";
-import {useAzureSpeechStream} from "@/hooks/speech/useAzureSpeech";
-import {KEY, REGION} from "@env"
+import React from "react"
+import {ScrollView, View} from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import {Appbar, Card, Divider, IconButton, MD3Theme, Text, useTheme} from "react-native-paper"
+import { MeetingDataType } from "@/constants/types/CustomTypes"
+import { useMeeting } from "@/hooks/storage/store/MeetingStateProvider"
+// @ts-ignore
+// import { KEY, REGION } from "@env"
 
 export default function LiveMeeting(): React.ReactNode {
-  const { title } = useLocalSearchParams()
-  const meetingContext = useContext(MeetingContext)
-  const theme = useTheme()
+  const { meeting } = useMeeting()
+  const theme: MD3Theme = useTheme()
   
-  const { isRecording } = useAzureSpeechStream(KEY, REGION, "ro-RO")
+  const [currentMeeting, setCurrentMeeting] = React.useState<MeetingDataType>({} as MeetingDataType)
   
-  const [meeting, setMeeting] = useState<MeetingDataType>({} as MeetingDataType)
-  
-  useEffect(() => {
-    if (meetingContext?.meeting) setMeeting(meetingContext?.meeting)
-  }, [meetingContext?.meeting]);
-  
-  useFocusEffect(React.useCallback(() => {
-    const initialize = async () => {
-      if (title && meetingContext) {
-        meetingContext.initializeMeeting(title as string)
-      }
-    }
-    initialize()
-  }, [title, meetingContext]))
+  React.useEffect(() => {
+    if (meeting.title) setCurrentMeeting(meeting);
+  }, [meeting]);
   
   return (
     <View className="w-full h-full" style={{backgroundColor: theme.colors.background}}>
       <Appbar.Header>
-        <Appbar.Content title={"Ședința Live"} />
+        <Appbar.Content title="Ședința Live" />
       </Appbar.Header>
       <SafeAreaView className="w-full" style={{maxHeight: "85%", padding: 30}}>
         <Card className="p-2">
           <Card.Content>
-            <View className='justify-center items-center'>
-              <Text className="font-bold text-2xl">{meeting.title}</Text>
+            <View className="justify-center items-center">
+              <Text className="font-bold text-2xl">{currentMeeting.title}</Text>
             </View>
             <Divider/>
-            <Text>{meeting.transcript}</Text>
+            <View className="w-full p-3" style={{height: 400}}>
+              <ScrollView>
+                <Text style={{color: theme.colors.onBackground}}>
+                  {currentMeeting.transcript}
+                </Text>
+              </ScrollView>
+            </View>
             <Divider/>
             <View className="flex-row items-center justify-evenly py-4">
               <IconButton
-                icon='cancel'
+                icon="cancel"
                 size={25}
                 style={{backgroundColor: theme.colors.onBackground}}
                 iconColor={theme.colors.background}
-                onPress={async () => {}}
+                onPress={() => {}}
               />
               <IconButton
-                icon={isRecording ? 'pause-circle' : 'play-circle'}
+                icon={true ? 'pause-circle' : 'play-circle'}
                 size={25}
                 style={{backgroundColor: theme.colors.onBackground}}
                 iconColor={theme.colors.background}
-                onPress={async () => {}}
+                onPress={() => {}}
               />
               <IconButton
-                icon='microphone'
+                icon="microphone"
                 size={25}
                 style={{backgroundColor: theme.colors.onBackground}}
                 iconColor={theme.colors.background}
-                onPress={async () => {}}
+                onPress={() => {}}
               />
             </View>
           </Card.Content>

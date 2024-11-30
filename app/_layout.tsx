@@ -1,71 +1,68 @@
 import React, { useEffect } from "react"
-import { SplashScreen, Tabs, useSegments } from 'expo-router'
+import {Stack, SplashScreen, useRouter, Router} from 'expo-router'
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
-import { AccountStateProvider } from "@/hooks/storage/store/AccountStateProvider";
-import {Provider as PaperProvider, useTheme} from "react-native-paper";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { AccountStateProvider } from "@/hooks/storage/store/AccountStateProvider"
+import {BottomNavigation, MD3Theme, Provider as PaperProvider, useTheme} from "react-native-paper"
 import "@/constants/global.css"
-import fontsList from "@/constants/values/fontsList";
+import fontsList from "@/constants/values/fontsList"
+import {useColorScheme, View} from "react-native"
+import { AccountContext } from "@/hooks/storage/store/AccountStateProvider";
 
-global.Buffer = require("buffer/").Buffer
-
-SplashScreen.preventAutoHideAsync()
-
-export default function RootLayout(): React.ReactNode {
+export default function RootLayout() {
   const [fontsLoaded, error] = useFonts(fontsList)
-  const theme = useTheme()
-  const tabs = useSegments()
+  const [index, setIndex] = React.useState(0)
+  const router: Router = useRouter()
+  const accountContext = React.useContext(AccountContext)
   
-  const hide: boolean =
-    tabs.includes('login') ||
-    tabs.includes('signup') ||
-    tabs.includes('reset') ||
-    tabs.includes('activate')
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  
+  const [routes] = React.useState([
+    { key: 'index', title: 'Acasă', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
+    { key: 'account', title: 'Programări', focusedIcon: 'view-dashboard', unfocusedIcon: 'view-dashboard-outline' },
+    { key: 'meetings', title: 'Ședințe', focusedIcon: 'comment-text-multiple', unfocusedIcon: 'comment-text-multiple-outline' },
+    { key: 'agents', title: 'Agenți', focusedIcon: 'robot', unfocusedIcon: 'robot-outline' },
+  ])
+  
+  const handleIndexChange = (newIndex: number) => {
+    const route = routes[newIndex]
+    router.push(route.key === 'index' ? '/' : `/${route.key}`)
+    setIndex(newIndex)
+  }
   
   useEffect(() => {
     if (error) throw error
-    
     if (fontsLoaded) SplashScreen.hideAsync()
   }, [fontsLoaded, error])
   
   if (!fontsLoaded && !error) return null
   
   return (
-    <AccountStateProvider>
-      <PaperProvider>
-        <Tabs screenOptions={{tabBarActiveTintColor: '#8867f3'}}>
-          <Tabs.Screen name="index" options={{
-            headerShown: false,
-            title: 'Home',
-            tabBarStyle: {display: 'none'},
-            tabBarButton: () => null
-          }}/>
-          
-          <Tabs.Screen name="account" options={{
-            headerShown: false,
-            title: 'Dashboard',
-            tabBarStyle: {display: hide ? 'none' : 'flex'},
-            tabBarIcon: ({color}) =>
-              <MaterialIcons name="calendar-month" size={24} color={color}/>
-          }}/>
-          
-          <Tabs.Screen name="meetings" options={{
-            headerShown: false,
-            title: 'Meetings',
-            tabBarIcon: ({color}) =>
-              <MaterialIcons name="sticky-note-2" size={24} color={color}/>
-          }}/>
-          
-          <Tabs.Screen name="agents" options={{
-            headerShown: false,
-            title: 'Agents',
-            tabBarIcon: ({color}) =>
-              <MaterialIcons name="support-agent" size={24} color={color}/>
-          }}/>
-        </Tabs>
-        <StatusBar backgroundColor={theme.colors.onBackground} style={theme.colors.background === 'rgba(255, 251, 254, 1)' ? 'dark' : 'light'} />
-      </PaperProvider>
-    </AccountStateProvider>
+    <PaperProvider>
+      <AccountStateProvider>
+        <StatusBar
+          backgroundColor={isDark ? '#1d1b1e' : '#ffff'}
+          style={isDark ? 'light' : 'dark'}
+        />
+        <View style={{ flex: 1 }}>
+          <View style={{height: '92%'}}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index"/>
+              <Stack.Screen name="account"/>
+              <Stack.Screen name="meetings"/>
+              <Stack.Screen name="agents"/>
+            </Stack>
+          </View>
+          <View style={{height: '8%'}}>
+            <BottomNavigation
+              navigationState={{ index, routes }}
+              onIndexChange={handleIndexChange}
+              renderScene={() => null}
+            />
+          </View>
+        </View>
+      </AccountStateProvider>
+    </PaperProvider>
   )
 }
